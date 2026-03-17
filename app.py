@@ -42,27 +42,45 @@ def search_anime():
     q = request.args.get("q", "")
     if not q:
         return jsonify([])
-    try:
-        r = requests.get(
-            f"https://api.jikan.moe/v4/anime?q={q}&limit=10&sfw=true",
-            timeout=10
-        )
-        data = r.json().get("data", [])
-        results = []
-        for a in data:
-            results.append({
-                "mal_id": a["mal_id"],
-                "title": a["title"],
-                "title_en": a.get("title_english") or a["title"],
-                "image": a["images"]["jpg"]["large_image_url"],
-                "score": a.get("score"),
-                "year": a.get("year"),
-                "episodes": a.get("episodes"),
-                "type": a.get("type"),
-            })
-        return jsonify(results)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+
+    import time
+    for attempt in range(3):
+        try:
+            r = requests.get(
+                f"https://api.jikan.moe/v4/anime?q={q}&limit=10&sfw=true",
+                timeout=10
+            )
+            if r.status_code == 429:
+                # rate limited — tunggu lalu retry
+                time.sleep(1.5)
+                continue
+            json_data = r.json()
+            if "error" in json_data:
+                time.sleep(1)
+                continue
+            data = json_data.get("data", [])
+            results = []
+            for a in data:
+                try:
+                    img = a["images"]["jpg"].get("large_image_url") or a["images"]["jpg"].get("image_url", "")
+                    results.append({
+                        "mal_id": a["mal_id"],
+                        "title": a["title"],
+                        "title_en": a.get("title_english") or a["title"],
+                        "image": img,
+                        "score": a.get("score"),
+                        "year": a.get("year"),
+                        "episodes": a.get("episodes"),
+                        "type": a.get("type"),
+                    })
+                except:
+                    pass
+            return jsonify(results)
+        except Exception as e:
+            if attempt == 2:
+                return jsonify({"error": str(e)}), 500
+            time.sleep(1)
+    return jsonify([])
 
 # ── API: Save list to Supabase ─────────────────────────
 @app.route("/api/save", methods=["POST"])
