@@ -399,7 +399,7 @@
 
   <div class="anime-grid fu fu3" id="animeGrid">
     {% for i in range(1, 10) %}
-    <div class="anime-slot" id="slot-{{ i }}" onclick="focusSearch()">
+    <div class="anime-slot" id="slot-{{ i }}" onclick="focusSearch({{ i - 1 }})">
       <div class="slot-num">{{ i }}</div>
       <div class="slot-hint">ketuk untuk tambah</div>
     </div>
@@ -442,16 +442,23 @@
   const searchIn  = document.getElementById('searchInput');
   const searchRes = document.getElementById('searchResults');
 
-  function focusSearch() {
+  let targetSlot = null; // slot index (0-based) yang mau diisi
+
+  function focusSearch(slotIdx) {
+    targetSlot = (slotIdx !== undefined) ? slotIdx : null;
     searchIn.focus();
     searchIn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    // wiggle animation hint
     searchIn.closest('.search-inner').style.transform = 'translate(-1px,-2px)';
     searchIn.closest('.search-inner').style.boxShadow = '5px 6px 0 var(--outline)';
     setTimeout(() => {
       searchIn.closest('.search-inner').style.transform = '';
       searchIn.closest('.search-inner').style.boxShadow = '';
     }, 400);
+    // highlight slot target
+    if (targetSlot !== null) {
+      const el = document.getElementById('slot-' + (targetSlot + 1));
+      if (el) { el.style.borderColor = 'var(--pink)'; el.style.borderStyle = 'solid'; }
+    }
   }
 
   function updateCount() {
@@ -481,7 +488,7 @@
       } else {
         div.className = 'anime-slot';
         div.innerHTML = '<div class="slot-num">' + i + '</div><div class="slot-hint">ketuk untuk tambah</div>';
-        div.onclick = focusSearch;
+        div.onclick = function() { focusSearch(i - 1); };
       }
       grid.appendChild(div);
     }
@@ -491,7 +498,14 @@
   function addAnime(anime) {
     if (selected.find(a => a.mal_id === anime.mal_id)) { showToast('Sudah ditambahkan!', 'error'); return; }
     if (selected.length >= 9) { showToast('Maksimal 9 anime!', 'error'); return; }
-    selected.push(anime);
+    if (targetSlot !== null && targetSlot < 9) {
+      // isi slot yang dituju, geser kalau sudah ada isi
+      selected.splice(targetSlot, 0, anime);
+      if (selected.length > 9) selected.length = 9;
+    } else {
+      selected.push(anime);
+    }
+    targetSlot = null;
     renderGrid();
     searchRes.classList.remove('open');
     searchIn.value = '';
