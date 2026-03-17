@@ -399,7 +399,7 @@
 
   <div class="anime-grid fu fu3" id="animeGrid">
     {% for i in range(1, 10) %}
-    <div class="anime-slot" id="slot-{{ i }}">
+    <div class="anime-slot" id="slot-{{ i }}" onclick="focusSearch()">
       <div class="slot-num">{{ i }}</div>
       <div class="slot-hint">ketuk untuk tambah</div>
     </div>
@@ -442,6 +442,18 @@
   const searchIn  = document.getElementById('searchInput');
   const searchRes = document.getElementById('searchResults');
 
+  function focusSearch() {
+    searchIn.focus();
+    searchIn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // wiggle animation hint
+    searchIn.closest('.search-inner').style.transform = 'translate(-1px,-2px)';
+    searchIn.closest('.search-inner').style.boxShadow = '5px 6px 0 var(--outline)';
+    setTimeout(() => {
+      searchIn.closest('.search-inner').style.transform = '';
+      searchIn.closest('.search-inner').style.boxShadow = '';
+    }, 400);
+  }
+
   function updateCount() {
     countNum.textContent = selected.length;
     countNum.style.transform = 'scale(1.4)';
@@ -469,6 +481,7 @@
       } else {
         div.className = 'anime-slot';
         div.innerHTML = '<div class="slot-num">' + i + '</div><div class="slot-hint">ketuk untuk tambah</div>';
+        div.onclick = focusSearch;
       }
       grid.appendChild(div);
     }
