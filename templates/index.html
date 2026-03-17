@@ -55,6 +55,7 @@
   .search-wrap {
     max-width: 500px; margin: 0 auto 0;
     position: relative; z-index: 100;
+    overflow: visible;
   }
   .search-inner {
     background: var(--card);
@@ -63,6 +64,7 @@
     box-shadow: var(--shadow);
     display: flex; align-items: center;
     transition: box-shadow 0.15s, transform 0.15s;
+    overflow: visible;
   }
   .search-inner:focus-within {
     box-shadow: 5px 6px 0 var(--outline);
@@ -76,6 +78,7 @@
     font-size: 0.9rem; outline: none;
   }
   #searchInput::placeholder { color: var(--ink3); font-weight: 500; }
+  #searchInput { user-select: text !important; -webkit-user-select: text !important; }
   .search-kbd {
     margin: 0 11px; background: var(--bg2);
     border: 2px solid var(--outline); border-radius: 6px;
@@ -85,12 +88,13 @@
 
   /* Dropdown */
   #searchResults {
-    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    position: fixed;
+    left: 1rem; right: 1rem;
     background: var(--dropdown);
     border: 2.5px solid var(--outline);
-    border-radius: 14px; max-height: 340px; overflow-y: auto;
-    z-index: 999; display: none;
-    box-shadow: var(--shadow);
+    border-radius: 14px; max-height: 45vh; overflow-y: auto;
+    z-index: 9999; display: none;
+    box-shadow: 0 -4px 0 var(--outline), var(--shadow);
   }
   #searchResults.open { display: block; }
   .result-item {
@@ -543,13 +547,42 @@
 
   let lastQuery = '';
 
+  function positionDropdown() {
+    const rect = searchIn.getBoundingClientRect();
+    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    const spaceBelow = vh - rect.bottom - 8;
+    const spaceAbove = rect.top - 8;
+    if (spaceBelow >= 180) {
+      // muat di bawah
+      searchRes.style.top = (rect.bottom + window.scrollY + 8) + 'px';
+      searchRes.style.bottom = 'auto';
+      searchRes.style.maxHeight = Math.min(spaceBelow - 16, 300) + 'px';
+    } else {
+      // muncul di atas search box
+      searchRes.style.bottom = (window.innerHeight - rect.top + window.scrollY + 8) + 'px';
+      searchRes.style.top = 'auto';
+      searchRes.style.maxHeight = Math.min(spaceAbove - 16, 300) + 'px';
+    }
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (searchRes.classList.contains('open')) positionDropdown();
+    });
+  }
+
   searchIn.addEventListener('input', () => {
     clearTimeout(timer);
     const q = searchIn.value.trim();
     if (!q) { searchRes.classList.remove('open'); return; }
     searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-spinner fa-spin"></i> Mencari…</div>';
     searchRes.classList.add('open');
+    positionDropdown();
     timer = setTimeout(() => doSearch(q), 600);
+  });
+
+  searchIn.addEventListener('focus', () => {
+    if (searchRes.classList.contains('open')) positionDropdown();
   });
 
   async function doSearch(q, retry) {
@@ -599,6 +632,12 @@
     }
   }
 
+  // Tutup dropdown saat tap di luar search wrap
+  document.addEventListener('touchstart', e => {
+    if (!e.target.closest('.search-wrap')) {
+      setTimeout(() => searchRes.classList.remove('open'), 150);
+    }
+  }, { passive: true });
   document.addEventListener('click', e => {
     if (!e.target.closest('.search-wrap')) searchRes.classList.remove('open');
   });
