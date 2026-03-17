@@ -729,7 +729,7 @@
             '<div style="font-size:0.65rem;font-weight:800;color:var(--ink);letter-spacing:0.1em;margin-bottom:4px;">PIN KAMU</div>' +
             '<div style="font-family:var(--font-h);font-size:2rem;font-weight:700;letter-spacing:0.2em;color:var(--ink);">' + data.pin + '</div>' +
           '</div>' +
-          '<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="navigator.clipboard.writeText(\'' + data.pin + '\').then(function(){showToast(\"PIN disalin!\",\"success\")})"><i class="fa-solid fa-copy"></i> Salin PIN</button>' +
+          '<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="navigator.clipboard.writeText(this.getAttribute(\"data-pin\")).then(function(){showToast(\"PIN disalin!\",\"success\")})" data-pin="' + data.pin + '"><i class="fa-solid fa-copy"></i> Salin PIN</button>' +
           '<a href="/drafts" style="display:block;text-align:center;margin-top:0.6rem;font-size:0.78rem;color:var(--blue);font-weight:700;font-family:var(--font-h);">Lihat semua draft →</a>'
         );
         showToast('Draft tersimpan! 📝', 'success');
