@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MyListAnime{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* ══════════════════════════════
+       DARK MODE (default)
+    ══════════════════════════════ */
+    [data-theme="dark"] {
+      --bg:         #0c0c10;
+      --bg2:        #101014;
+      --bg3:        #16161c;
+      --card:       #131318;
+      --border:     rgba(255,255,255,0.06);
+      --border2:    rgba(255,255,255,0.11);
+      --sakura:     #e8829a;
+      --sakura2:    #f4a0b5;
+      --sakura-dim: rgba(232,130,154,0.1);
+      --gold:       #e0b96a;
+      --text:       #edeef3;
+      --text2:      #7a7a96;
+      --text3:      #3e3e54;
+      --slot-num:   #2a2a36;
+      --nav-bg:     rgba(12,12,16,0.85);
+      --dropdown-bg:#1a1a22;
+      --shadow:     rgba(0,0,0,0.5);
+    }
+
+    /* ══════════════════════════════
+       LIGHT MODE
+    ══════════════════════════════ */
+    [data-theme="light"] {
+      --bg:         #f5f4f0;
+      --bg2:        #eeece8;
+      --bg3:        #e8e6e1;
+      --card:       #ffffff;
+      --border:     rgba(0,0,0,0.07);
+      --border2:    rgba(0,0,0,0.12);
+      --sakura:     #c8445c;
+      --sakura2:    #e05570;
+      --sakura-dim: rgba(200,68,92,0.08);
+      --gold:       #9a6f1a;
+      --text:       #1a1a22;
+      --text2:      #6a6a7e;
+      --text3:      #a0a0b4;
+      --slot-num:   #d8d6d0;
+      --nav-bg:     rgba(245,244,240,0.88);
+      --dropdown-bg:#ffffff;
+      --shadow:     rgba(0,0,0,0.15);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Zen Kaku Gothic New', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* dot grid — subtle in both modes */
+    [data-theme="dark"] body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: 26px 26px;
+      pointer-events: none; z-index: 0;
+    }
+    [data-theme="light"] body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+      background-size: 26px 26px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* top ambient glow */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -180px; left: 50%; transform: translateX(-50%);
+      width: 700px; height: 420px;
+      background: radial-gradient(ellipse, rgba(232,130,154,0.06) 0%, transparent 65%);
+      pointer-events: none; z-index: 0;
+    }
+    [data-theme="light"] body::after {
+      background: radial-gradient(ellipse, rgba(200,68,92,0.04) 0%, transparent 65%);
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--nav-bg);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-bottom: 1px solid var(--border);
+      height: 54px;
+      display: flex; align-items: center;
+      padding: 0 1.25rem;
+      justify-content: space-between;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .nav-logo {
+      font-family: 'Kaisei Decol', serif;
+      font-weight: 700; font-size: 1.05rem;
+      text-decoration: none; color: var(--text);
+      display: flex; align-items: center; gap: 9px;
+      transition: color 0.3s;
+    }
+    .logo-mark {
+      width: 27px; height: 27px; border-radius: 7px;
+      background: var(--sakura-dim);
+      border: 1px solid rgba(232,130,154,0.22);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--sakura); font-size: 0.65rem;
+      transition: background 0.3s;
+    }
+    .nav-logo em { font-style: normal; color: var(--sakura); transition: color 0.3s; }
+
+    .nav-right { display: flex; align-items: center; gap: 4px; }
+    .nav-links { display: flex; gap: 2px; }
+    .nav-links a {
+      color: var(--text2); text-decoration: none;
+      font-size: 0.78rem; font-weight: 500;
+      padding: 5px 13px; border-radius: 8px;
+      transition: all 0.15s; letter-spacing: 0.03em;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--bg3); }
+    .nav-links a.active { color: var(--sakura); background: var(--sakura-dim); }
+
+    /* Theme toggle button */
+    .theme-toggle {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--bg3); border: 1px solid var(--border2);
+      color: var(--text2); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; transition: all 0.2s;
+      margin-left: 4px;
+    }
+    .theme-toggle:hover { color: var(--sakura); border-color: var(--sakura-dim); }
+
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 10px;
+      font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 500;
+      font-size: 0.83rem; cursor: pointer; border: none;
+      transition: all 0.15s; text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    .btn-primary { background: var(--sakura); color: #fff; font-weight: 700; }
+    .btn-primary:hover {
+      background: var(--sakura2);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(232,130,154,0.25);
+    }
+    .btn-ghost {
+      background: var(--bg3); color: var(--text2);
+      border: 1px solid var(--border2);
+    }
+    .btn-ghost:hover { color: var(--text); background: var(--bg2); }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+    /* ── Container ── */
+    .container {
+      max-width: 1040px; margin: 0 auto;
+      padding: 0 1.25rem; position: relative; z-index: 1;
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(64px);
+      background: var(--card); border: 1px solid var(--border2);
+      color: var(--text2); padding: 9px 20px;
+      border-radius: 50px; font-size: 0.78rem;
+      z-index: 9999;
+      transition: transform 0.28s cubic-bezier(.34,1.56,.64,1), background 0.3s;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.success { border-color: rgba(232,130,154,0.4); color: var(--sakura2); }
+    #toast.error   { border-color: rgba(255,80,80,0.3); color: #ff6b6b; }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .fu  { animation: fadeUp 0.4s ease forwards; }
+    .fu1 { animation-delay:0.04s; opacity:0; }
+    .fu2 { animation-delay:0.1s;  opacity:0; }
+    .fu3 { animation-delay:0.17s; opacity:0; }
+    .fu4 { animation-delay:0.24s; opacity:0; }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <nav>
+    <a href="/" class="nav-logo">
+      <div class="logo-mark"><i class="fa-solid fa-grip"></i></div>
+      MyList<em>Anime</em>
+    </a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Buat List</a>
+        <a href="/explore" class="{% if request.path == '/explore' %}active{% endif %}">Jelajahi</a>
+      </div>
+      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+        <i class="fa-solid fa-moon" id="themeIcon"></i>
+      </button>
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <div id="toast"></div>
+
+  <script>
+    // ── Theme ──
+    const html      = document.documentElement;
+    const toggle    = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const saved     = localStorage.getItem('mla-theme') || 'dark';
+    setTheme(saved);
+
+    function setTheme(t) {
+      html.setAttribute('data-theme', t);
+      themeIcon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+      localStorage.setItem('mla-theme', t);
+    }
+    toggle.addEventListener('click', () => {
+      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    // ── Toast ──
+    function showToast(msg, type='') {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.className = type;
+      void t.offsetWidth; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
