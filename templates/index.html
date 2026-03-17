@@ -279,7 +279,7 @@
       <label>Username</label>
       <input type="text" id="usernameInput" placeholder="Your name or username…" maxlength="32">
     </div>
-    <button class="btn btn-primary" id="saveBtn" disabled>
+    <button class="btn btn-primary" id="saveBtn">
       <i class="fa-solid fa-share-nodes"></i> Save & Share
     </button>
     <p class="hint">Visible to everyone on Explore</p>
@@ -327,7 +327,6 @@
   }
 
   function addAnime(anime) {
-    if (selected.length >= 9)                           { showToast('Already 9!', 'error'); return; }
     if (selected.find(a => a.mal_id === anime.mal_id)) { showToast('Already added!', 'error'); return; }
     selected.push(anime);
     renderGrid();
