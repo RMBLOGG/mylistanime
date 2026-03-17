@@ -55,7 +55,6 @@
   .search-wrap {
     max-width: 500px; margin: 0 auto 0;
     position: relative; z-index: 100;
-    overflow: visible;
   }
   .search-inner {
     background: var(--card);
@@ -64,7 +63,6 @@
     box-shadow: var(--shadow);
     display: flex; align-items: center;
     transition: box-shadow 0.15s, transform 0.15s;
-    overflow: visible;
   }
   .search-inner:focus-within {
     box-shadow: 5px 6px 0 var(--outline);
@@ -78,7 +76,6 @@
     font-size: 0.9rem; outline: none;
   }
   #searchInput::placeholder { color: var(--ink3); font-weight: 500; }
-  #searchInput { user-select: text !important; -webkit-user-select: text !important; }
   .search-kbd {
     margin: 0 11px; background: var(--bg2);
     border: 2px solid var(--outline); border-radius: 6px;
@@ -88,13 +85,12 @@
 
   /* Dropdown */
   #searchResults {
-    position: fixed;
-    left: 1rem; right: 1rem;
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
     background: var(--dropdown);
     border: 2.5px solid var(--outline);
-    border-radius: 14px; max-height: 45vh; overflow-y: auto;
-    z-index: 9999; display: none;
-    box-shadow: 0 -4px 0 var(--outline), var(--shadow);
+    border-radius: 14px; max-height: 340px; overflow-y: auto;
+    z-index: 999; display: none;
+    box-shadow: var(--shadow);
   }
   #searchResults.open { display: block; }
   .result-item {
@@ -419,35 +415,12 @@
       <label>Nama Pengguna</label>
       <input type="text" id="usernameInput" placeholder="Nama atau username kamu…" maxlength="32">
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:0.7rem;">
-      <button class="btn btn-ghost" id="draftBtn" style="flex:1;justify-content:center;" onclick="saveDraft()">
-        <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
-      </button>
-    </div>
     <button class="btn btn-primary" id="saveBtn" disabled>
       <i class="fa-solid fa-share-nodes"></i> Simpan & Bagikan
     </button>
     <p class="hint">Terlihat oleh semua orang di Jelajahi 👀</p>
-    <p style="text-align:center;font-size:0.7rem;margin-top:0.4rem;">
-      <a href="/drafts" style="color:var(--blue);font-weight:700;font-family:var(--font-h);">
-        <i class="fa-solid fa-bookmark"></i> Lihat Draft Tersimpan
-      </a>
-    </p>
   </div>
 
-</div>
-
-<!-- DRAFT PIN MODAL -->
-<div class="modal-backdrop" id="draftModalBackdrop" onclick="closeDraftModal(event)">
-  <div class="modal" style="max-width:380px;">
-    <button class="modal-close" onclick="closeDraftModalBtn()"><i class="fa-solid fa-xmark"></i></button>
-    <div style="padding:1.5rem;text-align:center;">
-      <div style="width:56px;height:56px;border-radius:14px;background:var(--yellow);border:2.5px solid var(--outline);box-shadow:var(--shadow-s);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;">🔑</div>
-      <h3 id="draftModalTitle" style="font-family:var(--font-h);font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;"></h3>
-      <p id="draftModalDesc" style="font-size:0.82rem;color:var(--ink2);font-weight:600;margin-bottom:1.2rem;line-height:1.5;"></p>
-      <div id="draftModalContent"></div>
-    </div>
-  </div>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOutside(event)">
@@ -545,99 +518,32 @@
     renderGrid();
   }
 
-  let lastQuery = '';
-
-  function positionDropdown() {
-    const rect = searchIn.getBoundingClientRect();
-    const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    const spaceBelow = vh - rect.bottom - 8;
-    const spaceAbove = rect.top - 8;
-    if (spaceBelow >= 180) {
-      // muat di bawah
-      searchRes.style.top = (rect.bottom + window.scrollY + 8) + 'px';
-      searchRes.style.bottom = 'auto';
-      searchRes.style.maxHeight = Math.min(spaceBelow - 16, 300) + 'px';
-    } else {
-      // muncul di atas search box
-      searchRes.style.bottom = (window.innerHeight - rect.top + window.scrollY + 8) + 'px';
-      searchRes.style.top = 'auto';
-      searchRes.style.maxHeight = Math.min(spaceAbove - 16, 300) + 'px';
-    }
-  }
-
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', () => {
-      if (searchRes.classList.contains('open')) positionDropdown();
-    });
-  }
-
   searchIn.addEventListener('input', () => {
     clearTimeout(timer);
     const q = searchIn.value.trim();
     if (!q) { searchRes.classList.remove('open'); return; }
     searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-spinner fa-spin"></i> Mencari…</div>';
     searchRes.classList.add('open');
-    positionDropdown();
-    timer = setTimeout(() => doSearch(q), 600);
+    timer = setTimeout(async () => {
+      try {
+        const res  = await fetch('/api/search?q=' + encodeURIComponent(q));
+        const data = await res.json();
+        if (!data.length) { searchRes.innerHTML = '<div class="search-msg">😢 Tidak ada hasil</div>'; return; }
+        searchRes.innerHTML = data.map(a => {
+          const added = !!selected.find(s => s.mal_id === a.mal_id);
+          const safe  = JSON.stringify(a).replace(/"/g, '&quot;');
+          return '<div class="result-item">' +
+            '<img src="' + a.image + '" alt="" loading="lazy">' +
+            '<div class="ri-info"><strong>' + a.title + '</strong><span>' + (a.type||'?') + ' · ' + (a.year||'?') + '</span></div>' +
+            (a.score ? '<div class="ri-score"><i class="fa-solid fa-star"></i> ' + a.score + '</div>' : '') +
+            '<button class="ri-add ' + (added?'added':'') + '" ' + (added?'disabled':'') + ' onclick="addAnime(' + safe + ')">' +
+              '<i class="fa-solid ' + (added?'fa-check':'fa-plus') + '"></i>' +
+            '</button></div>';
+        }).join('');
+      } catch { searchRes.innerHTML = '<div class="search-msg">Gagal memuat</div>'; }
+    }, 460);
   });
 
-  searchIn.addEventListener('focus', () => {
-    if (searchRes.classList.contains('open')) positionDropdown();
-  });
-
-  async function doSearch(q, retry) {
-    lastQuery = q;
-    try {
-      const res = await fetch('/api/search?q=' + encodeURIComponent(q));
-      // pastikan masih query yang sama
-      if (q !== lastQuery) return;
-
-      let data;
-      try { data = await res.json(); } catch { data = []; }
-
-      // handle error object dari jikan
-      if (!Array.isArray(data)) {
-        if (data.error) {
-          // rate limit — coba lagi setelah 1.5 detik
-          if (!retry) {
-            searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-clock"></i> Tunggu sebentar…</div>';
-            setTimeout(() => doSearch(q, true), 1500);
-            return;
-          }
-          searchRes.innerHTML = '<div class="search-msg">😢 Coba ketik ulang</div>';
-          return;
-        }
-        data = [];
-      }
-
-      if (!data.length) {
-        searchRes.innerHTML = '<div class="search-msg">😢 Tidak ada hasil untuk <b>' + q + '</b></div>';
-        return;
-      }
-
-      searchRes.innerHTML = data.map(a => {
-        const added = !!selected.find(s => s.mal_id === a.mal_id);
-        const safe  = JSON.stringify(a).replace(/"/g, '&quot;');
-        return '<div class="result-item">' +
-          '<img src="' + a.image + '" alt="" loading="lazy">' +
-          '<div class="ri-info"><strong>' + a.title + '</strong><span>' + (a.type||'?') + ' · ' + (a.year||'?') + '</span></div>' +
-          (a.score ? '<div class="ri-score"><i class="fa-solid fa-star"></i> ' + a.score + '</div>' : '') +
-          '<button class="ri-add ' + (added?'added':'') + '" ' + (added?'disabled':'') + ' onclick="addAnime(' + safe + ')">' +
-            '<i class="fa-solid ' + (added?'fa-check':'fa-plus') + '"></i>' +
-          '</button></div>';
-      }).join('');
-    } catch(err) {
-      if (q !== lastQuery) return;
-      searchRes.innerHTML = '<div class="search-msg">❌ Koneksi bermasalah, coba lagi</div>';
-    }
-  }
-
-  // Tutup dropdown saat tap di luar search wrap
-  document.addEventListener('touchstart', e => {
-    if (!e.target.closest('.search-wrap')) {
-      setTimeout(() => searchRes.classList.remove('open'), 150);
-    }
-  }, { passive: true });
   document.addEventListener('click', e => {
     if (!e.target.closest('.search-wrap')) searchRes.classList.remove('open');
   });
@@ -726,149 +632,6 @@
   }
   function closeModalOutside(e) { if (e.target === document.getElementById('modalBackdrop')) closeModal(); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
-
-  // ── Draft functions ──
-  let currentDraftId = null;
-  let currentDraftPin = localStorage.getItem('mla-pin') || null;
-
-  // Load draft dari URL params
-  const urlParams = new URLSearchParams(window.location.search);
-  const draftIdParam = urlParams.get('draft');
-  const draftPinParam = urlParams.get('pin');
-  if (draftIdParam && draftPinParam) {
-    loadDraftFromUrl(draftIdParam, draftPinParam);
-  }
-
-  async function loadDraftFromUrl(id, pin) {
-    try {
-      const res = await fetch('/api/draft/list?pin=' + pin);
-      const drafts = await res.json();
-      if (Array.isArray(drafts)) {
-        const draft = drafts.find(d => d.id === id);
-        if (draft) {
-          selected = draft.anime_list || [];
-          currentDraftId = id;
-          currentDraftPin = pin;
-          localStorage.setItem('mla-pin', pin);
-          document.getElementById('usernameInput').value = draft.username || '';
-          renderGrid();
-          showToast('Draft dimuat! ✏️', 'success');
-          // clean URL
-          window.history.replaceState({}, '', '/');
-        }
-      }
-    } catch {}
-  }
-
-  function openDraftModal(title, desc, content) {
-    document.getElementById('draftModalTitle').textContent = title;
-    document.getElementById('draftModalDesc').textContent = desc;
-    document.getElementById('draftModalContent').innerHTML = content;
-    document.getElementById('draftModalBackdrop').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDraftModalBtn() {
-    document.getElementById('draftModalBackdrop').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  function closeDraftModal(e) {
-    if (e.target === document.getElementById('draftModalBackdrop')) closeDraftModalBtn();
-  }
-
-  async function saveDraft() {
-    const username = document.getElementById('usernameInput').value.trim();
-    if (!username) { showToast('Masukkan username dulu!', 'error'); return; }
-    if (selected.length < 1) { showToast('Pilih minimal 1 anime!', 'error'); return; }
-
-    // kalau sudah ada draft aktif, update langsung
-    if (currentDraftId && currentDraftPin) {
-      await updateExistingDraft(currentDraftId, currentDraftPin, username);
-      return;
-    }
-
-    // belum ada — tanya mau buat baru atau pakai PIN existing
-    openDraftModal(
-      'Simpan Draft',
-      'Punya PIN draft sebelumnya? Masukkan untuk tambah ke draft kamu. Atau buat draft baru dengan PIN baru.',
-      '<div style="display:flex;flex-direction:column;gap:8px;">' +
-        '<div style="display:flex;gap:6px;">' +
-          '<input type="text" id="existingPinInput" placeholder="PIN kamu (opsional)" maxlength="6" style="flex:1;background:var(--input-bg);border:2.5px solid var(--outline);color:var(--ink);padding:9px 12px;border-radius:10px;font-family:var(--font-h);font-size:0.9rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;outline:none;box-shadow:var(--shadow-s);">' +
-        '</div>' +
-        '<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doSaveDraft()">' +
-          '<i class="fa-solid fa-floppy-disk"></i> Simpan Draft' +
-        '</button>' +
-        '<button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:0.82rem;" onclick="closeDraftModalBtn()">' +
-          'Batal' +
-        '</button>' +
-      '</div>'
-    );
-    // auto fill pin if saved
-    setTimeout(() => {
-      const saved = localStorage.getItem('mla-pin');
-      if (saved) document.getElementById('existingPinInput').value = saved;
-    }, 100);
-  }
-
-  async function doSaveDraft() {
-    const username = document.getElementById('usernameInput').value.trim();
-    const pinInput = document.getElementById('existingPinInput')?.value.trim().toUpperCase() || '';
-    const title = (selected[0]?.title || 'Draft') + ' & lainnya';
-
-    closeDraftModalBtn();
-    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan…';
-
-    try {
-      const res = await fetch('/api/draft/create', {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ username, anime_list: selected, title, existing_pin: pinInput })
-      });
-      const data = await res.json();
-      if (data.success) {
-        currentDraftId = data.id;
-        currentDraftPin = data.pin;
-        localStorage.setItem('mla-pin', data.pin);
-        // tampilkan PIN ke user
-        openDraftModal(
-          '✅ Draft Tersimpan!',
-          'Catat PIN ini untuk akses draft kamu dari HP manapun.',
-          '<div style="background:var(--yellow);border:2.5px solid var(--outline);border-radius:12px;box-shadow:var(--shadow-s);padding:1rem;margin-bottom:1rem;">' +
-            '<div style="font-size:0.68rem;font-weight:800;color:var(--ink);letter-spacing:0.1em;margin-bottom:4px;">PIN KAMU</div>' +
-            '<div style="font-family:var(--font-h);font-size:2rem;font-weight:700;letter-spacing:0.2em;color:var(--ink);">' + data.pin + '</div>' +
-          '</div>' +
-          '<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="copyPin(''+data.pin+'')">' +
-            '<i class="fa-solid fa-copy"></i> Salin PIN' +
-          '</button>' +
-          '<a href="/drafts" style="display:block;text-align:center;margin-top:0.6rem;font-size:0.78rem;color:var(--blue);font-weight:700;font-family:var(--font-h);">' +
-            'Lihat semua draft →' +
-          '</a>'
-        );
-        showToast('Draft tersimpan! 📝', 'success');
-      } else {
-        showToast(data.error || 'Gagal menyimpan draft', 'error');
-      }
-    } catch {
-      showToast('Koneksi bermasalah', 'error');
-    }
-    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Draft';
-  }
-
-  async function updateExistingDraft(id, pin, username) {
-    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan…';
-    try {
-      const res = await fetch('/api/draft/update/' + id, {
-        method: 'POST', headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ pin, username, anime_list: selected })
-      });
-      const data = await res.json();
-      if (data.success) showToast('Draft diperbarui! ✏️', 'success');
-      else showToast(data.error || 'Gagal update', 'error');
-    } catch { showToast('Koneksi bermasalah', 'error'); }
-    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Draft';
-  }
-
-  function copyPin(pin) {
-    navigator.clipboard.writeText(pin).then(() => showToast('PIN disalin! ' + pin, 'success'));
-  }
 
   saveBtn.addEventListener('click', async () => {
     const username = document.getElementById('usernameInput').value.trim();
