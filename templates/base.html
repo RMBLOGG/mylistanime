@@ -79,9 +79,6 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     * {
       -webkit-tap-highlight-color: transparent;
-      user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
     }
     html { scroll-behavior: smooth; }
     body {
@@ -209,6 +206,22 @@
     #toast.success { background: var(--green2); color: var(--ink); border-color: var(--outline); }
     #toast.error   { background: var(--pink2);  color: white; }
 
+    @media (max-width: 520px) {
+      nav { padding: 0 0.75rem; }
+      .nav-logo { font-size: 0.92rem; gap: 7px; }
+      .logo-mark { width: 26px; height: 26px; font-size: 0.6rem; }
+      .nav-links a { padding: 5px 8px; font-size: 0.72rem; }
+      .theme-toggle { width: 30px; height: 30px; font-size: 0.72rem; }
+      .nav-right { gap: 3px; }
+      .nav-links { gap: 1px; }
+    }
+    @media (max-width: 400px) {
+      .nav-logo { font-size: 0.82rem; gap: 5px; }
+      .logo-mark { width: 22px; height: 22px; border-radius: 6px; }
+      .nav-links a { padding: 4px 7px; font-size: 0.68rem; }
+      .theme-toggle { width: 28px; height: 28px; }
+    }
+
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--ink3); border-radius: 3px; }
@@ -233,6 +246,7 @@
       <div class="nav-links">
         <a href="/" class="{% if request.path == '/' %}active{% endif %}">Buat List</a>
         <a href="/explore" class="{% if request.path == '/explore' %}active{% endif %}">Jelajahi</a>
+        <a href="/drafts" class="{% if request.path == '/drafts' %}active{% endif %}">Draft</a>
       </div>
       <button class="theme-toggle" id="themeToggle" title="Ganti tema">
         <i class="fa-solid fa-moon" id="themeIcon"></i>

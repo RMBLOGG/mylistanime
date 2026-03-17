@@ -415,12 +415,35 @@
       <label>Nama Pengguna</label>
       <input type="text" id="usernameInput" placeholder="Nama atau username kamu…" maxlength="32">
     </div>
+    <div style="display:flex;gap:8px;margin-bottom:0.7rem;">
+      <button class="btn btn-ghost" id="draftBtn" style="flex:1;justify-content:center;" onclick="saveDraft()">
+        <i class="fa-solid fa-floppy-disk"></i> Simpan Draft
+      </button>
+    </div>
     <button class="btn btn-primary" id="saveBtn" disabled>
       <i class="fa-solid fa-share-nodes"></i> Simpan & Bagikan
     </button>
     <p class="hint">Terlihat oleh semua orang di Jelajahi 👀</p>
+    <p style="text-align:center;font-size:0.7rem;margin-top:0.4rem;">
+      <a href="/drafts" style="color:var(--blue);font-weight:700;font-family:var(--font-h);">
+        <i class="fa-solid fa-bookmark"></i> Lihat Draft Tersimpan
+      </a>
+    </p>
   </div>
 
+</div>
+
+<!-- DRAFT MODAL -->
+<div class="modal-backdrop" id="draftModalBackdrop" onclick="if(event.target===this)closeDraftModalBtn()">
+  <div class="modal" style="max-width:380px;">
+    <button class="modal-close" onclick="closeDraftModalBtn()"><i class="fa-solid fa-xmark"></i></button>
+    <div style="padding:1.5rem;text-align:center;">
+      <div style="width:56px;height:56px;border-radius:14px;background:var(--yellow);border:2.5px solid var(--outline);box-shadow:var(--shadow-s);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 1rem;">🔑</div>
+      <h3 id="draftModalTitle" style="font-family:var(--font-h);font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;"></h3>
+      <p id="draftModalDesc" style="font-size:0.82rem;color:var(--ink2);font-weight:600;margin-bottom:1.2rem;line-height:1.5;"></p>
+      <div id="draftModalContent"></div>
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOutside(event)">
@@ -632,6 +655,102 @@
   }
   function closeModalOutside(e) { if (e.target === document.getElementById('modalBackdrop')) closeModal(); }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // ── DRAFT JS ──
+  let currentDraftId = null;
+  let currentDraftPin = localStorage.getItem('mla-pin') || null;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const draftIdParam = urlParams.get('draft');
+  const draftPinParam = urlParams.get('pin');
+  if (draftIdParam && draftPinParam) loadDraftFromUrl(draftIdParam, draftPinParam);
+
+  async function loadDraftFromUrl(id, pin) {
+    try {
+      const res = await fetch('/api/draft/list?pin=' + pin);
+      const drafts = await res.json();
+      if (Array.isArray(drafts)) {
+        const draft = drafts.find(d => d.id === id);
+        if (draft) {
+          selected = draft.anime_list || [];
+          currentDraftId = id; currentDraftPin = pin;
+          localStorage.setItem('mla-pin', pin);
+          document.getElementById('usernameInput').value = draft.username || '';
+          renderGrid(); showToast('Draft dimuat! ✏️', 'success');
+          window.history.replaceState({}, '', '/');
+        }
+      }
+    } catch {}
+  }
+
+  function openDraftModal(title, desc, html) {
+    document.getElementById('draftModalTitle').textContent = title;
+    document.getElementById('draftModalDesc').textContent = desc;
+    document.getElementById('draftModalContent').innerHTML = html;
+    document.getElementById('draftModalBackdrop').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDraftModalBtn() {
+    document.getElementById('draftModalBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  async function saveDraft() {
+    const username = document.getElementById('usernameInput').value.trim();
+    if (!username) { showToast('Masukkan username dulu!', 'error'); return; }
+    if (selected.length < 1) { showToast('Pilih minimal 1 anime!', 'error'); return; }
+    if (currentDraftId && currentDraftPin) { await updateExistingDraft(currentDraftId, currentDraftPin, username); return; }
+    openDraftModal('Simpan Draft', 'Punya PIN sebelumnya? Masukkan biar draft masuk ke koleksimu. Atau kosongkan untuk PIN baru.',
+      '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        '<input type="text" id="existingPinInput" placeholder="PIN kamu (opsional)" maxlength="6" style="background:var(--input-bg,#f7f5f0);border:2.5px solid var(--outline);color:var(--ink);padding:9px 12px;border-radius:10px;font-family:var(--font-h);font-size:1rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;outline:none;text-align:center;width:100%;">' +
+        '<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doSaveDraft()"><i class="fa-solid fa-floppy-disk"></i> Simpan Draft</button>' +
+        '<button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:0.82rem;" onclick="closeDraftModalBtn()">Batal</button>' +
+      '</div>'
+    );
+    setTimeout(() => { const s = localStorage.getItem('mla-pin'); if (s) document.getElementById('existingPinInput').value = s; }, 100);
+  }
+
+  async function doSaveDraft() {
+    const username = document.getElementById('usernameInput').value.trim();
+    const title = (selected[0] ? selected[0].title : 'Draft') + ' & lainnya';
+    closeDraftModalBtn();
+    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    try {
+      const res = await fetch('/api/draft/create', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ username, anime_list: selected, title })
+      });
+      const data = await res.json();
+      if (data.success) {
+        currentDraftId = data.id; currentDraftPin = data.pin;
+        localStorage.setItem('mla-pin', data.pin);
+        openDraftModal('✅ Draft Tersimpan!', 'Catat PIN ini untuk akses draft dari HP manapun.',
+          '<div style="background:var(--yellow);border:2.5px solid var(--outline);border-radius:12px;padding:1rem;margin-bottom:1rem;">' +
+            '<div style="font-size:0.65rem;font-weight:800;color:var(--ink);letter-spacing:0.1em;margin-bottom:4px;">PIN KAMU</div>' +
+            '<div style="font-family:var(--font-h);font-size:2rem;font-weight:700;letter-spacing:0.2em;color:var(--ink);">' + data.pin + '</div>' +
+          '</div>' +
+          '<button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="navigator.clipboard.writeText(\'' + data.pin + '\').then(function(){showToast(\"PIN disalin!\",\"success\")})"><i class="fa-solid fa-copy"></i> Salin PIN</button>' +
+          '<a href="/drafts" style="display:block;text-align:center;margin-top:0.6rem;font-size:0.78rem;color:var(--blue);font-weight:700;font-family:var(--font-h);">Lihat semua draft →</a>'
+        );
+        showToast('Draft tersimpan! 📝', 'success');
+      } else { showToast(data.error || 'Gagal menyimpan draft', 'error'); }
+    } catch { showToast('Koneksi bermasalah', 'error'); }
+    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Draft';
+  }
+
+  async function updateExistingDraft(id, pin, username) {
+    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    try {
+      const res = await fetch('/api/draft/update/' + id, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ pin, username, anime_list: selected })
+      });
+      const data = await res.json();
+      if (data.success) showToast('Draft diperbarui! ✏️', 'success');
+      else showToast(data.error || 'Gagal update', 'error');
+    } catch { showToast('Koneksi bermasalah', 'error'); }
+    document.getElementById('draftBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan Draft';
+  }
 
   saveBtn.addEventListener('click', async () => {
     const username = document.getElementById('usernameInput').value.trim();
