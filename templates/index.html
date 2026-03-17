@@ -541,31 +541,63 @@
     renderGrid();
   }
 
+  let lastQuery = '';
+
   searchIn.addEventListener('input', () => {
     clearTimeout(timer);
     const q = searchIn.value.trim();
     if (!q) { searchRes.classList.remove('open'); return; }
     searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-spinner fa-spin"></i> Mencari…</div>';
     searchRes.classList.add('open');
-    timer = setTimeout(async () => {
-      try {
-        const res  = await fetch('/api/search?q=' + encodeURIComponent(q));
-        const data = await res.json();
-        if (!data.length) { searchRes.innerHTML = '<div class="search-msg">😢 Tidak ada hasil</div>'; return; }
-        searchRes.innerHTML = data.map(a => {
-          const added = !!selected.find(s => s.mal_id === a.mal_id);
-          const safe  = JSON.stringify(a).replace(/"/g, '&quot;');
-          return '<div class="result-item">' +
-            '<img src="' + a.image + '" alt="" loading="lazy">' +
-            '<div class="ri-info"><strong>' + a.title + '</strong><span>' + (a.type||'?') + ' · ' + (a.year||'?') + '</span></div>' +
-            (a.score ? '<div class="ri-score"><i class="fa-solid fa-star"></i> ' + a.score + '</div>' : '') +
-            '<button class="ri-add ' + (added?'added':'') + '" ' + (added?'disabled':'') + ' onclick="addAnime(' + safe + ')">' +
-              '<i class="fa-solid ' + (added?'fa-check':'fa-plus') + '"></i>' +
-            '</button></div>';
-        }).join('');
-      } catch { searchRes.innerHTML = '<div class="search-msg">Gagal memuat</div>'; }
-    }, 460);
+    timer = setTimeout(() => doSearch(q), 600);
   });
+
+  async function doSearch(q, retry) {
+    lastQuery = q;
+    try {
+      const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+      // pastikan masih query yang sama
+      if (q !== lastQuery) return;
+
+      let data;
+      try { data = await res.json(); } catch { data = []; }
+
+      // handle error object dari jikan
+      if (!Array.isArray(data)) {
+        if (data.error) {
+          // rate limit — coba lagi setelah 1.5 detik
+          if (!retry) {
+            searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-clock"></i> Tunggu sebentar…</div>';
+            setTimeout(() => doSearch(q, true), 1500);
+            return;
+          }
+          searchRes.innerHTML = '<div class="search-msg">😢 Coba ketik ulang</div>';
+          return;
+        }
+        data = [];
+      }
+
+      if (!data.length) {
+        searchRes.innerHTML = '<div class="search-msg">😢 Tidak ada hasil untuk <b>' + q + '</b></div>';
+        return;
+      }
+
+      searchRes.innerHTML = data.map(a => {
+        const added = !!selected.find(s => s.mal_id === a.mal_id);
+        const safe  = JSON.stringify(a).replace(/"/g, '&quot;');
+        return '<div class="result-item">' +
+          '<img src="' + a.image + '" alt="" loading="lazy">' +
+          '<div class="ri-info"><strong>' + a.title + '</strong><span>' + (a.type||'?') + ' · ' + (a.year||'?') + '</span></div>' +
+          (a.score ? '<div class="ri-score"><i class="fa-solid fa-star"></i> ' + a.score + '</div>' : '') +
+          '<button class="ri-add ' + (added?'added':'') + '" ' + (added?'disabled':'') + ' onclick="addAnime(' + safe + ')">' +
+            '<i class="fa-solid ' + (added?'fa-check':'fa-plus') + '"></i>' +
+          '</button></div>';
+      }).join('');
+    } catch(err) {
+      if (q !== lastQuery) return;
+      searchRes.innerHTML = '<div class="search-msg">❌ Koneksi bermasalah, coba lagi</div>';
+    }
+  }
 
   document.addEventListener('click', e => {
     if (!e.target.closest('.search-wrap')) searchRes.classList.remove('open');
