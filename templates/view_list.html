@@ -39,7 +39,7 @@
   .view-slot {
     aspect-ratio: 2/3; border-radius: 10px;
     overflow: hidden; position: relative;
-    background: var(--card); cursor: pointer;
+    background: var(--card);
   }
   .view-slot img {
     width: 100%; height: 100%; object-fit: cover;
@@ -72,7 +72,9 @@
   }
   .loading i { font-size: 1.5rem; display: block; margin-bottom: 0.75rem; }
 
-  .not-found { text-align: center; padding: 6rem 0; }
+  .not-found {
+    text-align: center; padding: 6rem 0;
+  }
   .not-found .code {
     font-family: var(--font-jp);
     font-size: 4rem; font-weight: 700;
@@ -80,83 +82,18 @@
   }
   .not-found p { color: var(--text2); font-size: 0.88rem; margin-bottom: 1.5rem; }
 
-  .sep { height: 1px; background: var(--border); margin: 1.75rem 0; }
+  /* Separator line */
+  .sep {
+    height: 1px; background: var(--border);
+    margin: 1.75rem 0;
+  }
 
+  /* Kana label */
   .kana-label {
     font-size: 0.65rem; color: var(--text3);
     letter-spacing: 0.15em; margin-bottom: 0.6rem;
     font-family: var(--font-jp);
   }
-
-  /* ── Modal ── */
-  .modal-backdrop {
-    position: fixed; inset: 0; z-index: 500;
-    background: rgba(0,0,0,0.72);
-    backdrop-filter: blur(6px);
-    display: flex; align-items: center; justify-content: center;
-    padding: 1rem;
-    opacity: 0; pointer-events: none;
-    transition: opacity 0.22s;
-  }
-  .modal-backdrop.open { opacity: 1; pointer-events: all; }
-
-  .modal {
-    background: var(--bg2);
-    border: 1px solid var(--border2);
-    border-radius: 18px;
-    width: 100%; max-width: 640px;
-    max-height: 90vh; overflow-y: auto;
-    transform: translateY(20px) scale(0.97);
-    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
-    position: relative;
-  }
-  .modal-backdrop.open .modal { transform: translateY(0) scale(1); }
-
-  .modal-close {
-    position: absolute; top: 14px; right: 14px;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: var(--bg3); border: 1px solid var(--border2);
-    color: var(--text2); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.75rem; transition: all 0.15s; z-index: 10;
-  }
-  .modal-close:hover { background: var(--sakura); color: #fff; border-color: transparent; }
-
-  /* Modal: banner + portrait layout */
-  .modal-banner { width:100%; height:180px; position:relative; border-radius:18px 18px 0 0; overflow:hidden; flex-shrink:0; }
-  .modal-banner-img { width:100%; height:100%; object-fit:cover; object-position:top; filter:brightness(0.5); }
-  .modal-banner-grad { position:absolute; inset:0; background:linear-gradient(to bottom, transparent 30%, var(--bg2) 100%); }
-  .modal-banner-rank { position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.65); border:1px solid var(--gold); color:var(--gold); font-size:0.62rem; font-weight:700; letter-spacing:0.08em; padding:3px 10px; border-radius:20px; }
-  .modal-body-wrap { display:flex; gap:1rem; padding:0 1.2rem 0; margin-top:-60px; position:relative; }
-  .modal-poster { width:100px; flex-shrink:0; border-radius:10px; overflow:hidden; border:2px solid var(--border2); box-shadow:0 8px 24px rgba(0,0,0,0.45); align-self:flex-start; position:relative; z-index:1; }
-  .modal-poster img { width:100%; display:block; aspect-ratio:2/3; object-fit:cover; }
-  .modal-info { flex:1; min-width:0; padding-top:62px; }
-  .modal-badge-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:0.6rem; }
-  .badge { font-size:0.62rem; padding:3px 8px; border-radius:20px; font-weight:600; letter-spacing:0.04em; }
-  .badge-type { background:var(--sakura-dim); color:var(--sakura); border:1px solid rgba(232,130,154,0.2); }
-  .badge-status { background:var(--bg3); color:var(--text2); border:1px solid var(--border2); }
-  .badge-rating { background:var(--bg3); color:var(--text3); border:1px solid var(--border2); }
-  .modal-title { font-family:'Kaisei Decol',serif; font-size:clamp(1rem,3vw,1.3rem); font-weight:700; line-height:1.2; margin-bottom:3px; color:var(--text); }
-  .modal-title-en { font-size:0.7rem; color:var(--text3); margin-bottom:0.8rem; }
-  .modal-stats { display:flex; gap:14px; margin:1rem 1.2rem; flex-wrap:wrap; }
-  .stat { display:flex; flex-direction:column; gap:1px; }
-  .stat-label { font-size:0.58rem; color:var(--text3); letter-spacing:0.07em; text-transform:uppercase; }
-  .stat-val { font-size:0.88rem; font-weight:700; color:var(--text); }
-  .stat-val.gold { color:var(--gold); }
-  .modal-lower { padding:0 1.2rem 1.4rem; }
-  .modal-synopsis { font-size:0.78rem; color:var(--text2); line-height:1.7; margin-bottom:0.5rem; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
-  .modal-synopsis.expanded { -webkit-line-clamp:unset; }
-  .synopsis-toggle { font-size:0.7rem; color:var(--sakura); cursor:pointer; background:none; border:none; padding:0; margin-bottom:1rem; font-family:inherit; }
-  .synopsis-toggle:hover { text-decoration:underline; }
-  .modal-genres { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:1rem; }
-  .genre-tag { font-size:0.62rem; padding:3px 9px; border-radius:20px; background:var(--bg3); color:var(--text2); border:1px solid var(--border2); }
-  .modal-meta-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; font-size:0.72rem; margin-bottom:0.5rem; }
-  .meta-item { display:flex; flex-direction:column; gap:1px; }
-  .meta-label { font-size:0.58rem; color:var(--text3); letter-spacing:0.06em; text-transform:uppercase; }
-  .meta-val { color:var(--text2); }
-  .modal-watch-link { display:inline-flex; align-items:center; gap:6px; margin-top:0.8rem; font-size:0.73rem; color:#fff; text-decoration:none; border-radius:8px; padding:7px 14px; background:var(--sakura); font-weight:600; transition:all 0.15s; }
-  .modal-watch-link:hover { background:var(--sakura2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(232,130,154,0.3); }
-  .modal-loading { display:flex; align-items:center; justify-content:center; padding:3rem; color:var(--text3); gap:10px; font-size:0.83rem; }
 </style>
 {% endblock %}
 
@@ -164,23 +101,13 @@
 <div class="container">
   <div class="view-wrap">
     <a href="/explore" class="back fu fu1">
-      <i class="fa-solid fa-arrow-left"></i> Jelajahi
+      <i class="fa-solid fa-arrow-left"></i> Explore
     </a>
     <div id="listContent">
       <div class="loading">
         <i class="fa-solid fa-spinner fa-spin"></i>
-        Memuat…
+        Loading…
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal -->
-<div class="modal-backdrop" id="modalBackdrop" onclick="closeModalOutside(event)">
-  <div class="modal" id="modal">
-    <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-    <div id="modalBody">
-      <div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat detail…</div>
     </div>
   </div>
 </div>
@@ -189,15 +116,14 @@
 {% block scripts %}
 <script>
   const listId = "{{ list_id }}";
-  let listData = [];
 
   function ago(d) {
     const m = Math.floor((Date.now() - new Date(d))/60000);
-    if (m < 1) return 'baru saja';
-    if (m < 60) return `${m}m lalu`;
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
     const h = Math.floor(m/60);
-    if (h < 24) return `${h}j lalu`;
-    return `${Math.floor(h/24)}h lalu`;
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h/24)}d ago`;
   }
 
   async function load() {
@@ -206,14 +132,13 @@
       if (!res.ok) throw new Error();
       const data = await res.json();
       if (data.error) throw new Error();
-      listData = data.anime_list || [];
       render(data);
     } catch {
       document.getElementById('listContent').innerHTML = `
         <div class="not-found">
           <div class="code">404</div>
-          <p>List ini tidak ditemukan</p>
-          <a href="/explore" class="btn btn-ghost">Kembali ke Jelajahi</a>
+          <p>This list doesn't exist</p>
+          <a href="/explore" class="btn btn-ghost">Back to Explore</a>
         </div>`;
     }
   }
@@ -223,7 +148,7 @@
     const list = data.anime_list || [];
 
     const slots = list.map((a,i) => `
-      <div class="view-slot" onclick="openModal(${i})" title="Lihat detail">
+      <div class="view-slot">
         <img src="${a.image}" alt="" loading="lazy">
         <div class="view-slot-ov">
           <div class="ov-rank"># ${i+1}</div>
@@ -242,116 +167,25 @@
           <span>${list.length} anime</span>
         </div>
       </div>
+
       <div class="view-grid fu fu2">${slots}</div>
+
       <div class="sep"></div>
+
       <div class="actions fu fu3">
         <button class="btn btn-primary" onclick="copyLink()">
-          <i class="fa-solid fa-link"></i> Salin Link
+          <i class="fa-solid fa-link"></i> Copy Link
         </button>
         <a href="/" class="btn btn-ghost">
-          <i class="fa-solid fa-plus"></i> Buat Milikku
+          <i class="fa-solid fa-plus"></i> Make Mine
         </a>
       </div>
     `;
   }
-
-  // ── Modal ──
-  async function openModal(idx) {
-    const anime = listData[idx];
-    if (!anime) return;
-    const backdrop = document.getElementById('modalBackdrop');
-    const body = document.getElementById('modalBody');
-    body.innerHTML = `<div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat detail…</div>`;
-    backdrop.classList.add('open');
-    document.body.style.overflow = 'hidden';
-
-    try {
-      const res  = await fetch(`https://api.jikan.moe/v4/anime/${anime.mal_id}`);
-      const json = await res.json();
-      const a    = json.data;
-      renderModal(a, idx + 1);
-    } catch {
-      body.innerHTML = `<div class="modal-loading" style="color:var(--text3)">Gagal memuat detail.</div>`;
-    }
-  }
-
-  function renderModal(a, rank) {
-    const genres   = (a.genres || []).map(g => `<span class="genre-tag">${g.name}</span>`).join('');
-    const studios  = (a.studios || []).map(s => s.name).join(', ') || '—';
-    const producers= (a.producers || []).map(p => p.name).slice(0,3).join(', ') || '—';
-    const themes   = (a.themes || []).map(t => `<span class="genre-tag">${t.name}</span>`).join('');
-    const titleEn  = a.title_english && a.title_english !== a.title ? a.title_english : '';
-    const synopsis = a.synopsis || 'Tidak ada sinopsis.';
-    const status   = a.status || '—';
-    const aired    = a.aired?.string || '—';
-
-    const posterUrl = a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="modal-banner">
-        <img class="modal-banner-img" src="${posterUrl}" alt="">
-        <div class="modal-banner-grad"></div>
-        <div class="modal-banner-rank"># ${rank}</div>
-      </div>
-      <div class="modal-body-wrap">
-        <div class="modal-poster"><img src="${posterUrl}" alt="${a.title}"></div>
-        <div class="modal-info">
-          <div class="modal-badge-row">
-            ${a.type ? `<span class="badge badge-type">${a.type}</span>` : ''}
-            <span class="badge badge-status">${status}</span>
-            ${a.rating ? `<span class="badge badge-rating">${a.rating}</span>` : ''}
-          </div>
-          <div class="modal-title">${a.title}</div>
-          ${titleEn ? `<div class="modal-title-en">${titleEn}</div>` : ''}
-        </div>
-      </div>
-      <div class="modal-stats">
-        ${a.score ? `<div class="stat"><div class="stat-label">Skor</div><div class="stat-val gold">★ ${a.score}</div></div>` : ''}
-        ${a.scored_by ? `<div class="stat"><div class="stat-label">Voters</div><div class="stat-val">${a.scored_by.toLocaleString()}</div></div>` : ''}
-        ${a.rank ? `<div class="stat"><div class="stat-label">Ranking</div><div class="stat-val">#${a.rank}</div></div>` : ''}
-        ${a.popularity ? `<div class="stat"><div class="stat-label">Popularitas</div><div class="stat-val">#${a.popularity}</div></div>` : ''}
-        ${a.episodes ? `<div class="stat"><div class="stat-label">Episode</div><div class="stat-val">${a.episodes}</div></div>` : ''}
-        ${a.duration ? `<div class="stat"><div class="stat-label">Durasi</div><div class="stat-val">${a.duration}</div></div>` : ''}
-      </div>
-      <div class="modal-lower">
-        ${genres || themes ? `<div class="modal-genres">${genres}${themes}</div>` : ''}
-        <div class="modal-synopsis" id="synopsis">${synopsis}</div>
-        <button class="synopsis-toggle" id="synToggle" onclick="toggleSynopsis()">Baca selengkapnya</button>
-        <div class="modal-meta-grid">
-          <div class="meta-item"><div class="meta-label">Studio</div><div class="meta-val">${studios}</div></div>
-          <div class="meta-item"><div class="meta-label">Produser</div><div class="meta-val">${producers}</div></div>
-          <div class="meta-item"><div class="meta-label">Tayang</div><div class="meta-val">${aired}</div></div>
-          <div class="meta-item"><div class="meta-label">Season</div><div class="meta-val">${a.season ? a.season.charAt(0).toUpperCase()+a.season.slice(1)+' '+a.year : (a.year||'—')}</div></div>
-          ${a.source ? `<div class="meta-item"><div class="meta-label">Sumber</div><div class="meta-val">${a.source}</div></div>` : ''}
-          ${a.members ? `<div class="meta-item"><div class="meta-label">Members</div><div class="meta-val">${a.members.toLocaleString()}</div></div>` : ''}
-        </div>
-        <a href="https://animeku-id.vercel.app/search?q=${encodeURIComponent(a.title)}" target="_blank" class="modal-watch-link">
-          <i class="fa-solid fa-play"></i> Tonton di Animeku.ID
-        </a>
-      </div>
-    `;
-  }
-
-  function toggleSynopsis() {
-    const el = document.getElementById('synopsis');
-    const btn = document.getElementById('synToggle');
-    el.classList.toggle('expanded');
-    btn.textContent = el.classList.contains('expanded') ? 'Sembunyikan' : 'Baca selengkapnya';
-  }
-
-  function closeModal() {
-    document.getElementById('modalBackdrop').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function closeModalOutside(e) {
-    if (e.target === document.getElementById('modalBackdrop')) closeModal();
-  }
-
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   function copyLink() {
     navigator.clipboard.writeText(window.location.href).then(() => {
-      showToast('Link tersalin!', 'success');
+      showToast('Link copied!', 'success');
     });
   }
 

@@ -146,7 +146,6 @@
     }
     .theme-toggle:hover { color: var(--sakura); border-color: var(--sakura-dim); }
 
-
     /* ── Buttons ── */
     .btn {
       display: inline-flex; align-items: center; gap: 7px;
@@ -214,8 +213,8 @@
     </a>
     <div class="nav-right">
       <div class="nav-links">
-        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Buat List</a>
-        <a href="/explore" class="{% if request.path == '/explore' %}active{% endif %}">Jelajahi</a>
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Create</a>
+        <a href="/explore" class="{% if request.path == '/explore' %}active{% endif %}">Explore</a>
       </div>
       <button class="theme-toggle" id="themeToggle" title="Toggle theme">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
