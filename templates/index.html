@@ -300,7 +300,7 @@
     countNum.textContent = selected.length;
     countNum.style.transform = 'scale(1.35)';
     setTimeout(() => countNum.style.transform = '', 160);
-    saveBtn.disabled = selected.length !== 9;
+    saveBtn.disabled = selected.length === 0;
   }
 
   function renderGrid() {
