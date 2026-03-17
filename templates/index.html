@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}MyListAnime — Your List{% endblock %}
+{% block title %}MyListAnime — Buat Listmu{% endblock %}
 
 {% block head %}
 <style>
@@ -28,14 +28,22 @@
   .hero h1 .hl { color: var(--sakura); }
   .hero-sub {
     color: var(--text2); font-size: 0.86rem;
-    max-width: 360px; margin: 0 auto 2rem;
+    max-width: 360px; margin: 0 auto 1rem;
     line-height: 1.65; font-weight: 300;
   }
+  .support-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--text3); text-decoration: none;
+    font-size: 0.78rem; margin-bottom: 1.5rem;
+    transition: color 0.18s;
+  }
+  .support-link:hover { color: var(--sakura); }
 
-  /* ── Search ── */
+  /* ── Search — FIXED z-index ── */
   .search-wrap {
     max-width: 500px; margin: 0 auto 0;
     position: relative;
+    /* important: makes dropdown stay above counter/grid */
     z-index: 100;
   }
   .search-inner {
@@ -50,7 +58,7 @@
     box-shadow: 0 0 0 3px rgba(232,130,154,0.07);
   }
   .search-icon {
-    padding: 0 13px; color: var(--text2); font-size: 0.78rem; flex-shrink: 0;
+    padding: 0 13px; color: var(--text3); font-size: 0.78rem; flex-shrink: 0;
   }
   #searchInput {
     flex: 1; background: transparent; border: none;
@@ -58,23 +66,23 @@
     font-family: 'Zen Kaku Gothic New', sans-serif;
     font-size: 0.88rem; outline: none;
   }
-  #searchInput::placeholder { color: var(--text2); }
+  #searchInput::placeholder { color: var(--text3); }
   .search-kbd {
     margin: 0 11px;
     background: var(--bg3); border: 1px solid var(--border2);
     border-radius: 5px; padding: 2px 8px;
-    font-size: 0.63rem; color: var(--text2);
+    font-size: 0.63rem; color: var(--text3);
     font-family: monospace; flex-shrink: 0;
   }
 
-  /* Dropdown */
+  /* Dropdown — always on top */
   #searchResults {
     position: absolute; top: calc(100% + 6px); left: 0; right: 0;
     background: var(--dropdown-bg);
     border: 1px solid var(--border2);
     border-radius: 12px;
     max-height: 340px; overflow-y: auto;
-    z-index: 999;
+    z-index: 999;        /* << high z-index */
     display: none;
     box-shadow: 0 16px 40px var(--shadow);
   }
@@ -98,7 +106,7 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     color: var(--text);
   }
-  .ri-info span { font-size: 0.69rem; color: var(--text2); }
+  .ri-info span { font-size: 0.69rem; color: var(--text3); }
   .ri-score { font-size: 0.69rem; color: var(--gold); display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
   .ri-add {
     width: 26px; height: 26px; border-radius: 50%;
@@ -108,18 +116,18 @@
     font-size: 0.7rem; flex-shrink: 0; transition: all 0.15s;
   }
   .ri-add:hover { background: var(--sakura); color: #fff; }
-  .ri-add.added { background: var(--bg3); border-color: var(--border); color: var(--text2); cursor: default; }
+  .ri-add.added { background: var(--bg3); border-color: var(--border); color: var(--text3); cursor: default; }
   .search-msg {
     padding: 1.3rem; text-align: center;
-    color: var(--text2); font-size: 0.79rem;
+    color: var(--text3); font-size: 0.79rem;
     display: flex; align-items: center; justify-content: center; gap: 8px;
   }
 
-  /* ── Counter ── */
+  /* ── Counter — below search, lower z-index ── */
   .counter-row {
     display: flex; align-items: center; justify-content: center;
     margin: 1.25rem 0 1.25rem;
-    position: relative; z-index: 1;
+    position: relative; z-index: 1;   /* << below dropdown */
   }
   .counter-pill {
     display: flex; align-items: center; gap: 6px;
@@ -132,15 +140,15 @@
     min-width: 18px; text-align: center;
     transition: transform 0.15s;
   }
-  .counter-pill .denom { font-size: 0.8rem; color: var(--text2); }
+  .counter-pill .denom { font-size: 0.8rem; color: var(--text3); }
 
-  /* ── Grid ── */
+  /* ── Grid — fixed slot number visibility ── */
   .anime-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 8px; max-width: 580px;
     margin: 0 auto 2.5rem;
-    position: relative; z-index: 1;
+    position: relative; z-index: 1;  /* << below dropdown */
   }
 
   .anime-slot {
@@ -151,19 +159,19 @@
     align-items: center; justify-content: center;
     gap: 4px; position: relative; overflow: hidden;
     transition: border-color 0.18s, background 0.18s;
-    cursor: pointer;
   }
   .anime-slot:hover { border-color: var(--sakura); background: var(--bg2); }
   .anime-slot.filled { border: 1.5px solid var(--border); }
 
+  /* slot number — use --slot-num variable (visible in both modes) */
   .slot-num {
     font-family: 'Kaisei Decol', serif;
     font-size: 1.8rem; font-weight: 700;
-    color: var(--slot-num);
+    color: var(--slot-num);            /* << visible now */
     line-height: 1; user-select: none;
   }
   .slot-hint {
-    font-size: 0.65rem; color: var(--text2);
+    font-size: 0.65rem; color: var(--text3);
     letter-spacing: 0.04em;
   }
 
@@ -179,6 +187,7 @@
   }
   .anime-slot.filled:hover .slot-overlay { opacity: 1; }
   .slot-ov-rank { font-size: 0.58rem; color: var(--gold); font-weight: 700; letter-spacing: 0.07em; margin-bottom: 2px; }
+  .slot-ov-hint { font-size: 0.6rem; color: rgba(255,255,255,0.55); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
   .slot-ov-title {
     font-size: 0.64rem; color: #fff; line-height: 1.3;
     display: -webkit-box; -webkit-line-clamp: 2;
@@ -211,7 +220,7 @@
   }
   .save-head i { color: var(--sakura); font-size: 0.72rem; }
   .field label {
-    display: block; font-size: 0.72rem; color: var(--text2);
+    display: block; font-size: 0.72rem; color: var(--text3);
     margin-bottom: 5px; font-weight: 500; letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -226,9 +235,9 @@
     margin-bottom: 0.9rem;
   }
   .field input:focus { border-color: rgba(232,130,154,0.5); }
-  .field input::placeholder { color: var(--text2); }
+  .field input::placeholder { color: var(--text3); }
   #saveBtn { width: 100%; justify-content: center; font-size: 0.88rem; padding: 11px; }
-  .hint { text-align: center; font-size: 0.7rem; color: var(--text2); margin-top: 0.7rem; }
+  .hint { text-align: center; font-size: 0.7rem; color: var(--text3); margin-top: 0.7rem; }
 
   /* ── Modal ── */
   .modal-backdrop {
@@ -259,9 +268,10 @@
     font-size: 0.75rem; transition: all 0.15s; z-index: 10;
   }
   .modal-close:hover { background: var(--sakura); color: #fff; border-color: transparent; }
+  /* ── Modal: banner + portrait layout ── */
   .modal-banner {
     width: 100%; height: 180px; position: relative;
-    border-radius: 18px 18px 0 0; overflow: hidden;
+    border-radius: 18px 18px 0 0; overflow: hidden; flex-shrink: 0;
   }
   .modal-banner-img {
     width: 100%; height: 100%; object-fit: cover; object-position: top;
@@ -287,7 +297,8 @@
     border-radius: 10px; overflow: hidden;
     border: 2px solid var(--border2);
     box-shadow: 0 8px 24px rgba(0,0,0,0.45);
-    align-self: flex-start; position: relative; z-index: 1;
+    align-self: flex-start;
+    position: relative; z-index: 1;
   }
   .modal-poster img { width: 100%; display: block; aspect-ratio: 2/3; object-fit: cover; }
   .modal-info { flex: 1; min-width: 0; padding-top: 62px; }
@@ -295,12 +306,12 @@
   .badge { font-size: 0.62rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.04em; }
   .badge-type { background: var(--sakura-dim); color: var(--sakura); border: 1px solid rgba(232,130,154,0.2); }
   .badge-status { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
-  .badge-rating { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+  .badge-rating { background: var(--bg3); color: var(--text3); border: 1px solid var(--border2); }
   .modal-title { font-family: 'Kaisei Decol', serif; font-size: clamp(1rem, 3vw, 1.3rem); font-weight: 700; line-height: 1.2; margin-bottom: 3px; color: var(--text); }
-  .modal-title-en { font-size: 0.7rem; color: var(--text2); margin-bottom: 0.8rem; }
+  .modal-title-en { font-size: 0.7rem; color: var(--text3); margin-bottom: 0.8rem; }
   .modal-stats { display: flex; gap: 14px; margin-bottom: 1rem; flex-wrap: wrap; padding: 0 1.2rem; }
   .stat { display: flex; flex-direction: column; gap: 1px; }
-  .stat-label { font-size: 0.58rem; color: var(--text2); letter-spacing: 0.07em; text-transform: uppercase; }
+  .stat-label { font-size: 0.58rem; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; }
   .stat-val { font-size: 0.88rem; font-weight: 700; color: var(--text); }
   .stat-val.gold { color: var(--gold); }
   .modal-lower { padding: 0 1.2rem 1.4rem; }
@@ -310,13 +321,13 @@
   .synopsis-toggle:hover { text-decoration: underline; }
   .modal-genres { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1rem; }
   .genre-tag { font-size: 0.62rem; padding: 3px 9px; border-radius: 20px; background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
-  .modal-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 0.72rem; margin-bottom: 1rem; }
+  .modal-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; font-size: 0.72rem; margin-bottom: 0.5rem; }
   .meta-item { display: flex; flex-direction: column; gap: 1px; }
-  .meta-label { font-size: 0.58rem; color: var(--text2); letter-spacing: 0.06em; text-transform: uppercase; }
+  .meta-label { font-size: 0.58rem; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; }
   .meta-val { color: var(--text2); }
-  .modal-watch-link { display:inline-flex; align-items:center; gap:6px; margin-top:0.4rem; font-size:0.73rem; color:#fff; text-decoration:none; border-radius:8px; padding:7px 14px; background:var(--sakura); font-weight:600; transition:all 0.15s; }
+  .modal-watch-link { display:inline-flex; align-items:center; gap:6px; margin-top:0.8rem; font-size:0.73rem; color:#fff; text-decoration:none; border-radius:8px; padding:7px 14px; background:var(--sakura); font-weight:600; transition:all 0.15s; }
   .modal-watch-link:hover { background:var(--sakura2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(232,130,154,0.3); }
-  .modal-loading { display:flex; align-items:center; justify-content:center; padding:3rem; color:var(--text2); gap:10px; font-size:0.83rem; }
+  .modal-loading { display: flex; align-items: center; justify-content: center; padding: 3rem; color: var(--text3); gap: 10px; font-size: 0.83rem; }
 </style>
 {% endblock %}
 
@@ -325,34 +336,35 @@
 
   <div class="hero fu fu1">
     <div class="hero-kana">アニメリスト</div>
-    <h1>Pick your <span class="hl">anime</span><br>that shaped you</h1>
-    <p class="hero-sub">Curate the titles that defined your taste. Save and share with the world.</p>
+    <h1>Pilih <span class="hl">anime</span> yang membentukmu</h1>
+    <p class="hero-sub">Kurasi judul-judul yang mendefinisikan seleramu. Simpan dan bagikan ke dunia.</p>
+    <a href="https://trakteer.id/Dayynimee" target="_blank" rel="noopener" class="support-link">☕ Support MyListAnime</a>
   </div>
 
-  <!-- Search -->
+  <!-- Search (z-index: 100) -->
   <div class="search-wrap fu fu2">
     <div class="search-inner">
       <div class="search-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-      <input type="text" id="searchInput" placeholder="Search anime title…" autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Cari judul anime…" autocomplete="off">
       <span class="search-kbd">Search</span>
     </div>
     <div id="searchResults"></div>
   </div>
 
-  <!-- Counter -->
+  <!-- Counter (z-index: 1) -->
   <div class="counter-row fu fu3">
     <div class="counter-pill">
       <span class="num" id="countNum">0</span>
-      <span class="denom">/ anime selected</span>
+      <span class="denom">/ anime dipilih</span>
     </div>
   </div>
 
-  <!-- Grid -->
+  <!-- Grid (z-index: 1) -->
   <div class="anime-grid fu fu3" id="animeGrid">
     {% for i in range(1, 10) %}
     <div class="anime-slot" id="slot-{{ i }}">
       <div class="slot-num">{{ i }}</div>
-      <div class="slot-hint">tap to add</div>
+      <div class="slot-hint">ketuk untuk tambah</div>
     </div>
     {% endfor %}
   </div>
@@ -360,16 +372,16 @@
   <!-- Save -->
   <div class="save-card fu fu4">
     <div class="save-head">
-      <i class="fa-solid fa-bookmark"></i> Save your list
+      <i class="fa-solid fa-bookmark"></i> Simpan listmu
     </div>
     <div class="field">
-      <label>Username</label>
-      <input type="text" id="usernameInput" placeholder="Your name or username…" maxlength="32">
+      <label>Nama Pengguna</label>
+      <input type="text" id="usernameInput" placeholder="Nama atau username kamu…" maxlength="32">
     </div>
     <button class="btn btn-primary" id="saveBtn" disabled>
-      <i class="fa-solid fa-share-nodes"></i> Save & Share
+      <i class="fa-solid fa-share-nodes"></i> Simpan & Bagikan
     </button>
-    <p class="hint">Visible to everyone on Explore</p>
+    <p class="hint">Terlihat oleh semua orang di Jelajahi</p>
   </div>
 
 </div>
@@ -379,16 +391,16 @@
   <div class="modal" id="modal">
     <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
     <div id="modalBody">
-      <div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>
+      <div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat detail…</div>
     </div>
   </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
   let selected = [], timer;
+  document.addEventListener('DOMContentLoaded', () => renderGrid());
   const countNum  = document.getElementById('countNum');
   const saveBtn   = document.getElementById('saveBtn');
   const searchIn  = document.getElementById('searchInput');
@@ -402,31 +414,36 @@
   }
 
   function renderGrid() {
+    const grid = document.getElementById('animeGrid');
+    grid.innerHTML = '';
     for (let i = 1; i <= 9; i++) {
-      const slot = document.getElementById(`slot-${i}`);
-      if (!slot) continue;
       const anime = selected[i - 1];
+      const div = document.createElement('div');
+      div.id = 'slot-' + i;
       if (anime) {
-        slot.className = 'anime-slot filled';
-        slot.innerHTML = `
-          <img src="${anime.image}" alt="" loading="lazy">
-          <div class="slot-overlay" onclick="openModal(${i-1})">
-            <div class="slot-ov-rank"># ${i}</div>
-            <div class="slot-ov-title">${anime.title}</div>
-          </div>
-          <button class="slot-del" onclick="removeAnime(${i-1},event)">
-            <i class="fa-solid fa-xmark"></i>
-          </button>`;
+        div.className = 'anime-slot filled';
+        div.innerHTML =
+          '<img src="' + anime.image + '" alt="" loading="lazy">' +
+          '<div class="slot-overlay" onclick="openModal(' + (i-1) + ')">' +
+            '<div class="slot-ov-rank"># ' + i + '</div>' +
+            '<div class="slot-ov-title">' + anime.title + '</div>' +
+            '<div class="slot-ov-hint"><i class="fa-solid fa-circle-info"></i> Detail</div>' +
+          '</div>' +
+          '<button class="slot-del" onclick="removeAnime(' + (i-1) + ',event)">' +
+            '<i class="fa-solid fa-xmark"></i>' +
+          '</button>';
       } else {
-        slot.className = 'anime-slot';
-        slot.innerHTML = `<div class="slot-num">${i}</div><div class="slot-hint">tap to add</div>`;
+        div.className = 'anime-slot';
+        div.innerHTML = '<div class="slot-num">' + i + '</div><div class="slot-hint">ketuk untuk tambah</div>';
       }
+      grid.appendChild(div);
     }
     updateCount();
   }
 
   function addAnime(anime) {
-    if (selected.find(a => a.mal_id === anime.mal_id)) { showToast('Already added!', 'error'); return; }
+    if (false /* no limit */)                           { showToast('Batas maksimal tercapai!', 'error'); return; }
+    if (selected.find(a => a.mal_id === anime.mal_id)) { showToast('Sudah ditambahkan!', 'error'); return; }
     selected.push(anime);
     renderGrid();
     searchRes.classList.remove('open');
@@ -444,13 +461,13 @@
     clearTimeout(timer);
     const q = searchIn.value.trim();
     if (!q) { searchRes.classList.remove('open'); return; }
-    searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-spinner fa-spin"></i> Searching…</div>';
+    searchRes.innerHTML = '<div class="search-msg"><i class="fa-solid fa-spinner fa-spin"></i> Mencari…</div>';
     searchRes.classList.add('open');
     timer = setTimeout(async () => {
       try {
         const res  = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
         const data = await res.json();
-        if (!data.length) { searchRes.innerHTML = '<div class="search-msg">No results</div>'; return; }
+        if (!data.length) { searchRes.innerHTML = '<div class="search-msg">Tidak ada hasil</div>'; return; }
         searchRes.innerHTML = data.map(a => {
           const added = !!selected.find(s => s.mal_id === a.mal_id);
           const safe  = JSON.stringify(a).replace(/"/g, '&quot;');
@@ -467,7 +484,7 @@
               </button>
             </div>`;
         }).join('');
-      } catch { searchRes.innerHTML = '<div class="search-msg">Failed to load</div>'; }
+      } catch { searchRes.innerHTML = '<div class="search-msg">Gagal memuat</div>'; }
     }, 460);
   });
 
@@ -483,7 +500,7 @@
     if (!anime) return;
     const backdrop = document.getElementById('modalBackdrop');
     const body = document.getElementById('modalBody');
-    body.innerHTML = '<div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading detail…</div>';
+    body.innerHTML = '<div class="modal-loading"><i class="fa-solid fa-spinner fa-spin"></i> Memuat detail…</div>';
     backdrop.classList.add('open');
     document.body.style.overflow = 'hidden';
 
@@ -496,7 +513,7 @@
       detailCache[malId] = json.data;
       renderModal(json.data, idx);
     } catch {
-      body.innerHTML = '<div class="modal-loading">Failed to load detail.</div>';
+      body.innerHTML = '<div class="modal-loading">Gagal memuat detail.</div>';
     }
   }
 
@@ -509,15 +526,16 @@
     const aired = d.aired?.string || '—';
     const duration = d.duration || '—';
     const source = d.source || '—';
-    const synopsis = d.synopsis ? d.synopsis.replace('[Written by MAL Rewrite]', '').trim() : 'No synopsis available.';
-    const posterUrl = d.images?.jpg?.large_image_url || d.images?.jpg?.image_url || '';
+    const synopsis = d.synopsis ? d.synopsis.replace('[Written by MAL Rewrite]', '').trim() : 'Tidak ada sinopsis.';
 
+    const posterUrl = d.images?.jpg?.large_image_url || d.images?.jpg?.image_url || '';
     document.getElementById('modalBody').innerHTML = `
       <div class="modal-banner">
         <img class="modal-banner-img" src="${posterUrl}" alt="">
         <div class="modal-banner-grad"></div>
         <div class="modal-banner-rank"># ${rank}</div>
       </div>
+
       <div class="modal-body-wrap">
         <div class="modal-poster">
           <img src="${posterUrl}" alt="${d.title}">
@@ -532,28 +550,28 @@
           ${titleEn}
         </div>
       </div>
+
       <div class="modal-stats">
         ${d.score ? `<div class="stat"><span class="stat-label">Score</span><span class="stat-val gold">★ ${d.score}</span></div>` : ''}
         ${d.rank ? `<div class="stat"><span class="stat-label">Rank</span><span class="stat-val">#${d.rank}</span></div>` : ''}
-        ${d.popularity ? `<div class="stat"><span class="stat-label">Popularity</span><span class="stat-val">#${d.popularity}</span></div>` : ''}
+        ${d.popularity ? `<div class="stat"><span class="stat-label">Popularitas</span><span class="stat-val">#${d.popularity}</span></div>` : ''}
         ${d.members ? `<div class="stat"><span class="stat-label">Members</span><span class="stat-val">${d.members.toLocaleString()}</span></div>` : ''}
-        ${d.episodes ? `<div class="stat"><span class="stat-label">Episodes</span><span class="stat-val">${d.episodes}</span></div>` : ''}
+        ${d.episodes ? `<div class="stat"><span class="stat-label">Episode</span><span class="stat-val">${d.episodes}</span></div>` : ''}
       </div>
+
       <div class="modal-lower">
         ${genres ? `<div class="modal-genres">${genres}</div>` : ''}
         <div class="modal-synopsis" id="modalSynopsis">${synopsis}</div>
-        <button class="synopsis-toggle" id="synToggle" onclick="toggleSynopsis()">Read more</button>
+        <button class="synopsis-toggle" id="synToggle" onclick="toggleSynopsis()">Baca selengkapnya</button>
         <div class="modal-meta-grid">
-          <div class="meta-item"><span class="meta-label">Aired</span><span class="meta-val">${aired}</span></div>
-          <div class="meta-item"><span class="meta-label">Duration</span><span class="meta-val">${duration}</span></div>
+          <div class="meta-item"><span class="meta-label">Tayang</span><span class="meta-val">${aired}</span></div>
+          <div class="meta-item"><span class="meta-label">Durasi</span><span class="meta-val">${duration}</span></div>
           <div class="meta-item"><span class="meta-label">Studio</span><span class="meta-val">${studios}</span></div>
-          <div class="meta-item"><span class="meta-label">Source</span><span class="meta-val">${source}</span></div>
-          <div class="meta-item"><span class="meta-label">Producer</span><span class="meta-val">${producers}</span></div>
+          <div class="meta-item"><span class="meta-label">Sumber</span><span class="meta-val">${source}</span></div>
+          <div class="meta-item"><span class="meta-label">Produser</span><span class="meta-val">${producers}</span></div>
           ${d.season ? `<div class="meta-item"><span class="meta-label">Season</span><span class="meta-val">${d.season} ${d.year || ''}</span></div>` : ''}
         </div>
-        <a href="https://animeku-id.vercel.app/search?q=${encodeURIComponent(d.title)}" target="_blank" class="modal-watch-link">
-          <i class="fa-solid fa-play"></i> Watch on Animeku.ID
-        </a>
+        <a href="https://animeku-id.vercel.app/search?q=${encodeURIComponent(d.title)}" target="_blank" class="modal-watch-link"><i class="fa-solid fa-play"></i> Tonton di Animeku.ID</a>
       </div>`;
   }
 
@@ -561,7 +579,7 @@
     const el = document.getElementById('modalSynopsis');
     const btn = document.getElementById('synToggle');
     el.classList.toggle('expanded');
-    btn.textContent = el.classList.contains('expanded') ? 'Show less' : 'Read more';
+    btn.textContent = el.classList.contains('expanded') ? 'Sembunyikan' : 'Baca selengkapnya';
   }
 
   function closeModal() {
@@ -577,9 +595,9 @@
 
   saveBtn.addEventListener('click', async () => {
     const username = document.getElementById('usernameInput').value.trim();
-    if (!username) { showToast('Enter a username!', 'error'); return; }
+    if (!username) { showToast('Masukkan nama pengguna!', 'error'); return; }
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan…';
     try {
       const res  = await fetch('/api/save', {
         method: 'POST', headers: {'Content-Type':'application/json'},
@@ -587,17 +605,17 @@
       });
       const data = await res.json();
       if (data.success) {
-        showToast('Saved!', 'success');
+        showToast('Tersimpan!', 'success');
         setTimeout(() => window.location.href = `/list/${data.id}`, 1100);
       } else {
         showToast(data.error || 'Failed', 'error');
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Save & Share';
+        saveBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Simpan & Bagikan';
       }
     } catch {
-      showToast('Network error', 'error');
+      showToast('Kesalahan jaringan', 'error');
       saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Save & Share';
+      saveBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Simpan & Bagikan';
     }
   });
 </script>
