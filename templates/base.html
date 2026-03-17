@@ -1,173 +1,192 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}MyListAnime{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    /* ══════════════════════════════
-       DARK MODE (default)
-    ══════════════════════════════ */
-    [data-theme="dark"] {
-      --bg:         #0c0c10;
-      --bg2:        #101014;
-      --bg3:        #16161c;
-      --card:       #131318;
-      --border:     rgba(255,255,255,0.09);
-      --border2:    rgba(255,255,255,0.16);
-      --sakura:     #e8829a;
-      --sakura2:    #f4a0b5;
-      --sakura-dim: rgba(232,130,154,0.1);
-      --gold:       #e0b96a;
-      --text:       #edeef3;
-      --text2:      #9a9ab8;
-      --text3:      #686882;
-      --slot-num:   #3e3e56;
-      --nav-bg:     rgba(12,12,16,0.85);
-      --dropdown-bg:#1a1a22;
-      --shadow:     rgba(0,0,0,0.5);
+    /* ════════════════════════════
+       LIGHT MODE (default)
+    ════════════════════════════ */
+    :root,
+    [data-theme="light"] {
+      --white:     #ffffff;
+      --bg:        #f7f5f0;
+      --bg2:       #edeae3;
+      --card:      #ffffff;
+      --pink:      #ff6b9d;
+      --pink2:     #e8457a;
+      --blue:      #4dabf7;
+      --blue2:     #2f9de0;
+      --yellow:    #ffd43b;
+      --yellow2:   #fcc419;
+      --green:     #69db7c;
+      --green2:    #40c057;
+      --purple:    #cc5de8;
+      --orange:    #ff922b;
+      --ink:       #1a1a2e;
+      --ink2:      #4a4a6a;
+      --ink3:      #7878a0;
+      --outline:   #1a1a2e;
+      --shadow:    4px 4px 0px #1a1a2e;
+      --shadow-s:  2px 2px 0px #1a1a2e;
+      --shadow-c:  3px 3px 0px rgba(26,26,46,0.12);
+      --nav-bg:    #ffffff;
+      --nav-border:#1a1a2e;
+      --input-bg:  #f7f5f0;
+      --dropdown:  #ffffff;
+      --modal-bg:  #ffffff;
+      --radius:    14px;
+      --font-h:    'Fredoka', sans-serif;
+      --font-b:    'Nunito', sans-serif;
     }
 
-    /* ══════════════════════════════
-       LIGHT MODE
-    ══════════════════════════════ */
-    [data-theme="light"] {
-      --bg:         #f5f4f0;
-      --bg2:        #eeece8;
-      --bg3:        #e8e6e1;
-      --card:       #ffffff;
-      --border:     rgba(0,0,0,0.07);
-      --border2:    rgba(0,0,0,0.12);
-      --sakura:     #c8445c;
-      --sakura2:    #e05570;
-      --sakura-dim: rgba(200,68,92,0.08);
-      --gold:       #9a6f1a;
-      --text:       #1a1a22;
-      --text2:      #6a6a7e;
-      --text3:      #a0a0b4;
-      --slot-num:   #d8d6d0;
-      --nav-bg:     rgba(245,244,240,0.88);
-      --dropdown-bg:#ffffff;
-      --shadow:     rgba(0,0,0,0.15);
+    /* ════════════════════════════
+       DARK MODE — cartoon night
+    ════════════════════════════ */
+    [data-theme="dark"] {
+      --white:     #1e1828;
+      --bg:        #13101c;
+      --bg2:       #261e34;
+      --card:      #1e1828;
+      --pink:      #ff6b9d;
+      --pink2:     #ff4d8d;
+      --blue:      #4dabf7;
+      --blue2:     #339af0;
+      --yellow:    #ffd43b;
+      --yellow2:   #fcc419;
+      --green:     #69db7c;
+      --green2:    #51cf66;
+      --purple:    #da77f2;
+      --orange:    #ff922b;
+      --ink:       #fce8f0;
+      --ink2:      #c8a0b8;
+      --ink3:      #8a6880;
+      --outline:   #ff6b9d;
+      --shadow:    4px 4px 0px #c4336a;
+      --shadow-s:  2px 2px 0px #c4336a;
+      --shadow-c:  3px 3px 0px rgba(196,51,106,0.4);
+      --nav-bg:    #17121f;
+      --nav-border:#ff6b9d;
+      --input-bg:  #13101c;
+      --dropdown:  #251d32;
+      --modal-bg:  #1e1828;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
-      color: var(--text);
-      font-family: 'Zen Kaku Gothic New', sans-serif;
+      color: var(--ink);
+      font-family: var(--font-b);
       min-height: 100vh;
       overflow-x: hidden;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.25s, color 0.25s;
     }
 
-    /* dot grid — subtle in both modes */
-    [data-theme="dark"] body::before {
+    /* polka dot */
+    body::before {
       content: '';
       position: fixed; inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.022) 1px, transparent 1px);
-      background-size: 26px 26px;
       pointer-events: none; z-index: 0;
     }
     [data-theme="light"] body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
-      background-size: 26px 26px;
-      pointer-events: none; z-index: 0;
+      background-image: radial-gradient(circle, rgba(26,26,46,0.055) 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
     }
-
-    /* top ambient glow */
-    body::after {
-      content: '';
-      position: fixed;
-      top: -180px; left: 50%; transform: translateX(-50%);
-      width: 700px; height: 420px;
-      background: radial-gradient(ellipse, rgba(232,130,154,0.06) 0%, transparent 65%);
-      pointer-events: none; z-index: 0;
-    }
-    [data-theme="light"] body::after {
-      background: radial-gradient(ellipse, rgba(200,68,92,0.04) 0%, transparent 65%);
+    [data-theme="dark"] body::before {
+      background-image: radial-gradient(circle, rgba(255,107,157,0.1) 1.5px, transparent 1.5px);
+      background-size: 22px 22px;
     }
 
     /* ── Nav ── */
     nav {
       position: sticky; top: 0; z-index: 200;
       background: var(--nav-bg);
-      backdrop-filter: blur(22px);
-      -webkit-backdrop-filter: blur(22px);
-      border-bottom: 1px solid var(--border);
-      height: 54px;
+      border-bottom: 2.5px solid var(--nav-border);
+      height: 58px;
       display: flex; align-items: center;
       padding: 0 1.25rem;
       justify-content: space-between;
-      transition: background 0.3s, border-color 0.3s;
+      transition: background 0.25s, border-color 0.25s;
     }
+    [data-theme="light"] nav { box-shadow: 0 3px 0 var(--outline); }
+    [data-theme="dark"]  nav { box-shadow: 0 3px 0 #c4336a; }
+
     .nav-logo {
-      font-family: 'Kaisei Decol', serif;
-      font-weight: 700; font-size: 1.05rem;
-      text-decoration: none; color: var(--text);
+      font-family: var(--font-h);
+      font-weight: 700; font-size: 1.25rem;
+      text-decoration: none; color: var(--ink);
       display: flex; align-items: center; gap: 9px;
-      transition: color 0.3s;
     }
     .logo-mark {
-      width: 27px; height: 27px; border-radius: 7px;
-      background: var(--sakura-dim);
-      border: 1px solid rgba(232,130,154,0.22);
+      width: 30px; height: 30px; border-radius: 10px;
+      background: var(--pink);
+      border: 2.5px solid var(--outline);
+      box-shadow: var(--shadow-s);
       display: flex; align-items: center; justify-content: center;
-      color: var(--sakura); font-size: 0.65rem;
-      transition: background 0.3s;
+      color: white; font-size: 0.7rem;
+      transition: transform 0.15s;
     }
-    .nav-logo em { font-style: normal; color: var(--sakura); transition: color 0.3s; }
+    .nav-logo:hover .logo-mark { transform: rotate(-8deg) scale(1.05); }
+    .nav-logo em { font-style: normal; color: var(--pink); }
 
-    .nav-right { display: flex; align-items: center; gap: 4px; }
-    .nav-links { display: flex; gap: 2px; }
+    .nav-right { display: flex; align-items: center; gap: 6px; }
+    .nav-links { display: flex; gap: 4px; }
     .nav-links a {
-      color: var(--text2); text-decoration: none;
-      font-size: 0.78rem; font-weight: 500;
-      padding: 5px 13px; border-radius: 8px;
-      transition: all 0.15s; letter-spacing: 0.03em;
+      color: var(--ink2); text-decoration: none;
+      font-size: 0.82rem; font-weight: 700;
+      padding: 6px 14px; border-radius: 10px;
+      transition: all 0.12s; border: 2px solid transparent;
+      font-family: var(--font-h); letter-spacing: 0.01em;
     }
-    .nav-links a:hover { color: var(--text); background: var(--bg3); }
-    .nav-links a.active { color: var(--sakura); background: var(--sakura-dim); }
+    .nav-links a:hover {
+      background: var(--bg2); border-color: var(--outline);
+      box-shadow: var(--shadow-s); transform: translateY(-1px);
+      color: var(--ink);
+    }
+    .nav-links a.active {
+      background: var(--pink); color: white;
+      border-color: var(--outline); box-shadow: var(--shadow-s);
+    }
 
-    /* Theme toggle button */
+    /* theme toggle */
     .theme-toggle {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: var(--bg3); border: 1px solid var(--border2);
-      color: var(--text2); cursor: pointer;
+      width: 34px; height: 34px; border-radius: 10px;
+      background: var(--yellow);
+      border: 2.5px solid var(--outline);
+      box-shadow: var(--shadow-s);
+      color: var(--ink); cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; transition: all 0.2s;
-      margin-left: 4px;
+      font-size: 0.82rem; transition: all 0.15s;
     }
-    .theme-toggle:hover { color: var(--sakura); border-color: var(--sakura-dim); }
-
+    .theme-toggle:hover { transform: translateY(-2px) rotate(15deg); box-shadow: 3px 5px 0 var(--outline); }
 
     /* ── Buttons ── */
     .btn {
       display: inline-flex; align-items: center; gap: 7px;
-      padding: 9px 18px; border-radius: 10px;
-      font-family: 'Zen Kaku Gothic New', sans-serif; font-weight: 500;
-      font-size: 0.83rem; cursor: pointer; border: none;
-      transition: all 0.15s; text-decoration: none;
-      letter-spacing: 0.02em;
+      padding: 10px 20px; border-radius: 12px;
+      font-family: var(--font-h); font-weight: 600;
+      font-size: 0.9rem; cursor: pointer;
+      border: 2.5px solid var(--outline);
+      transition: all 0.12s; text-decoration: none;
     }
-    .btn-primary { background: var(--sakura); color: #fff; font-weight: 700; }
-    .btn-primary:hover {
-      background: var(--sakura2);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(232,130,154,0.25);
-    }
-    .btn-ghost {
-      background: var(--bg3); color: var(--text2);
-      border: 1px solid var(--border2);
-    }
-    .btn-ghost:hover { color: var(--text); background: var(--bg2); }
-    .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    .btn-primary { background: var(--pink); color: white; box-shadow: var(--shadow); }
+    .btn-primary:hover  { transform: translate(-1px,-2px); box-shadow: 5px 6px 0 var(--outline); }
+    .btn-primary:active { transform: translate(2px,2px);   box-shadow: 1px 1px 0 var(--outline); }
+    .btn-ghost  { background: var(--card); color: var(--ink); box-shadow: var(--shadow-s); }
+    .btn-ghost:hover  { transform: translate(-1px,-2px); box-shadow: 3px 5px 0 var(--outline); background: var(--bg2); }
+    .btn-ghost:active { transform: translate(1px,1px);   box-shadow: 1px 1px 0 var(--outline); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
     /* ── Container ── */
     .container {
@@ -177,39 +196,37 @@
 
     /* ── Toast ── */
     #toast {
-      position: fixed; bottom: 20px; left: 50%;
-      transform: translateX(-50%) translateY(64px);
-      background: var(--card); border: 1px solid var(--border2);
-      color: var(--text2); padding: 9px 20px;
-      border-radius: 50px; font-size: 0.78rem;
-      z-index: 9999;
-      transition: transform 0.28s cubic-bezier(.34,1.56,.64,1), background 0.3s;
-      white-space: nowrap;
+      position: fixed; bottom: 22px; left: 50%;
+      transform: translateX(-50%) translateY(70px);
+      color: white; padding: 10px 22px; border-radius: 50px;
+      font-size: 0.82rem; font-family: var(--font-h); font-weight: 700;
+      z-index: 9999; border: 2.5px solid var(--outline);
+      box-shadow: var(--shadow);
+      transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+      white-space: nowrap; background: var(--ink);
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-    #toast.success { border-color: rgba(232,130,154,0.4); color: var(--sakura2); }
-    #toast.error   { border-color: rgba(255,80,80,0.3); color: #ff6b6b; }
+    #toast.show  { transform: translateX(-50%) translateY(0); }
+    #toast.success { background: var(--green2); color: var(--ink); border-color: var(--outline); }
+    #toast.error   { background: var(--pink2);  color: white; }
 
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--ink3); border-radius: 3px; }
 
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(14px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
+    @keyframes popIn  { from{opacity:0;transform:scale(0.88) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
     .fu  { animation: fadeUp 0.4s ease forwards; }
     .fu1 { animation-delay:0.04s; opacity:0; }
     .fu2 { animation-delay:0.1s;  opacity:0; }
     .fu3 { animation-delay:0.17s; opacity:0; }
-    .fu4 { animation-delay:0.24s; opacity:0; }
+    .fu4 { animation-delay:0.25s; opacity:0; }
   </style>
   {% block head %}{% endblock %}
 </head>
 <body>
   <nav>
     <a href="/" class="nav-logo">
-      <div class="logo-mark"><i class="fa-solid fa-grip"></i></div>
+      <div class="logo-mark"><i class="fa-solid fa-star"></i></div>
       MyList<em>Anime</em>
     </a>
     <div class="nav-right">
@@ -217,7 +234,7 @@
         <a href="/" class="{% if request.path == '/' %}active{% endif %}">Buat List</a>
         <a href="/explore" class="{% if request.path == '/explore' %}active{% endif %}">Jelajahi</a>
       </div>
-      <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+      <button class="theme-toggle" id="themeToggle" title="Ganti tema">
         <i class="fa-solid fa-moon" id="themeIcon"></i>
       </button>
     </div>
@@ -226,25 +243,23 @@
   {% block content %}{% endblock %}
 
   <div id="toast"></div>
-
   <script>
-    // ── Theme ──
-    const html      = document.documentElement;
-    const toggle    = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const toggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
-    const saved     = localStorage.getItem('mla-theme') || 'dark';
+    // default light
+    const saved = localStorage.getItem('mla-theme') || 'light';
     setTheme(saved);
 
     function setTheme(t) {
       html.setAttribute('data-theme', t);
-      themeIcon.className = t === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+      themeIcon.className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
       localStorage.setItem('mla-theme', t);
     }
-    toggle.addEventListener('click', () => {
-      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    });
+    toggle.addEventListener('click', () =>
+      setTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark')
+    );
 
-    // ── Toast ──
     function showToast(msg, type='') {
       const t = document.getElementById('toast');
       t.textContent = msg; t.className = type;
