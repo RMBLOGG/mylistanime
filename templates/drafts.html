@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}Draft Saya — MyListAnime{% endblock %}
+
+{% block head %}
+<style>
+  .page-wrap { max-width: 680px; margin: 0 auto; padding: 2rem 0 5rem; }
+
+  /* ── PIN Login ── */
+  .pin-card {
+    background: var(--card); border: 2.5px solid var(--outline);
+    border-radius: 18px; box-shadow: var(--shadow);
+    padding: 2rem 1.5rem; text-align: center; margin-bottom: 1.5rem;
+  }
+  .pin-icon {
+    width: 60px; height: 60px; border-radius: 16px;
+    background: var(--yellow); border: 2.5px solid var(--outline);
+    box-shadow: var(--shadow-s);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin: 0 auto 1rem;
+  }
+  .pin-card h2 { font-family: var(--font-h); font-size: 1.4rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .pin-card p { color: var(--ink2); font-size: 0.85rem; font-weight: 600; margin-bottom: 1.2rem; }
+
+  .pin-input-wrap { display: flex; gap: 8px; max-width: 320px; margin: 0 auto; }
+  .pin-input {
+    flex: 1; background: var(--input-bg);
+    border: 2.5px solid var(--outline); color: var(--ink);
+    padding: 11px 14px; border-radius: 12px;
+    font-family: var(--font-h); font-size: 1.1rem;
+    font-weight: 700; letter-spacing: 0.15em;
+    text-transform: uppercase; outline: none;
+    transition: box-shadow 0.15s; text-align: center;
+    box-shadow: var(--shadow-s);
+  }
+  .pin-input:focus { box-shadow: 3px 5px 0 var(--outline); transform: translate(-1px,-2px); }
+  .pin-input::placeholder { letter-spacing: 0.05em; font-size: 0.85rem; color: var(--ink3); }
+
+  /* ── Draft list ── */
+  .drafts-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;
+  }
+  .drafts-header h3 { font-family: var(--font-h); font-size: 1.1rem; font-weight: 700; }
+  .pin-badge {
+    background: var(--yellow); border: 2px solid var(--outline);
+    border-radius: 50px; padding: 3px 12px;
+    font-family: var(--font-h); font-size: 0.75rem; font-weight: 800;
+    box-shadow: var(--shadow-s); letter-spacing: 0.1em;
+  }
+
+  .draft-card {
+    background: var(--card); border: 2.5px solid var(--outline);
+    border-radius: 14px; box-shadow: var(--shadow);
+    margin-bottom: 12px; overflow: hidden;
+    transition: all 0.15s;
+  }
+  .draft-card:hover { transform: translate(-1px,-2px); box-shadow: 5px 6px 0 var(--outline); }
+
+  .draft-card-top {
+    display: flex; gap: 10px; padding: 1rem;
+    border-bottom: 2px solid var(--outline);
+  }
+  /* mini mosaic 3x3 */
+  .draft-mosaic {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 2px; width: 72px; height: 72px; flex-shrink: 0;
+    border-radius: 8px; overflow: hidden;
+    border: 2px solid var(--outline);
+  }
+  .draft-mosaic img { width:100%; height:100%; object-fit:cover; }
+  .draft-mosaic .empty { background: var(--bg2); }
+
+  .draft-info { flex: 1; min-width: 0; }
+  .draft-title {
+    font-family: var(--font-h); font-size: 1rem; font-weight: 700;
+    margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .draft-meta { font-size: 0.72rem; color: var(--ink3); font-weight: 700; margin-bottom: 6px; }
+  .draft-count {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--blue); color: white;
+    border: 2px solid var(--outline); border-radius: 50px;
+    padding: 2px 10px; font-size: 0.68rem;
+    font-family: var(--font-h); font-weight: 700; box-shadow: var(--shadow-s);
+  }
+
+  .draft-actions {
+    display: flex; gap: 6px; padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+  }
+  .btn-sm {
+    padding: 6px 13px; font-size: 0.75rem; border-radius: 9px;
+    font-family: var(--font-h); font-weight: 700;
+    border: 2px solid var(--outline); cursor: pointer;
+    transition: all 0.12s; display: inline-flex;
+    align-items: center; gap: 5px; text-decoration: none;
+  }
+  .btn-sm-green  { background: var(--green2); color: var(--ink); box-shadow: var(--shadow-s); }
+  .btn-sm-green:hover  { transform: translate(-1px,-1px); box-shadow: 3px 4px 0 var(--outline); }
+  .btn-sm-blue   { background: var(--blue); color: white; box-shadow: var(--shadow-s); }
+  .btn-sm-blue:hover   { transform: translate(-1px,-1px); box-shadow: 3px 4px 0 var(--outline); }
+  .btn-sm-pink   { background: var(--pink); color: white; box-shadow: var(--shadow-s); }
+  .btn-sm-pink:hover   { transform: translate(-1px,-1px); box-shadow: 3px 4px 0 var(--outline); }
+  .btn-sm-red    { background: #ff4444; color: white; box-shadow: var(--shadow-s); }
+  .btn-sm-red:hover    { transform: translate(-1px,-1px); box-shadow: 3px 4px 0 var(--outline); }
+
+  /* Empty */
+  .empty-drafts { text-align: center; padding: 3rem 1rem; color: var(--ink3); }
+  .empty-drafts .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+  .empty-drafts p { font-size: 0.88rem; font-weight: 700; color: var(--ink2); }
+
+  /* ── Confirm modal ── */
+  .confirm-backdrop {
+    position: fixed; inset: 0; z-index: 500;
+    background: rgba(26,26,46,0.65);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .confirm-backdrop.open { opacity: 1; pointer-events: all; }
+  .confirm-box {
+    background: var(--card); border: 2.5px solid var(--outline);
+    border-radius: 18px; box-shadow: 6px 6px 0 var(--outline);
+    padding: 1.5rem; max-width: 320px; width: 100%;
+    text-align: center;
+    transform: scale(0.9); transition: transform 0.2s cubic-bezier(.34,1.56,.64,1);
+  }
+  .confirm-backdrop.open .confirm-box { transform: scale(1); }
+  .confirm-box h3 { font-family: var(--font-h); font-size: 1.1rem; margin-bottom: 0.5rem; }
+  .confirm-box p { font-size: 0.82rem; color: var(--ink2); font-weight: 600; margin-bottom: 1.2rem; }
+  .confirm-btns { display: flex; gap: 8px; justify-content: center; }
+
+  /* Loading */
+  .loading-row { text-align: center; padding: 2rem; color: var(--ink3); font-family: var(--font-h); font-size: 0.88rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-wrap">
+
+    <!-- PIN Login -->
+    <div class="pin-card fu fu1" id="pinSection">
+      <div class="pin-icon">🔑</div>
+      <h2>Akses Draft Kamu</h2>
+      <p>Masukkan PIN 6 karakter yang kamu dapat saat menyimpan draft pertama kali</p>
+      <div class="pin-input-wrap">
+        <input type="text" class="pin-input" id="pinInput" placeholder="Contoh: A3X9KZ" maxlength="6" autocomplete="off">
+        <button class="btn btn-primary" id="pinBtn" onclick="loadDrafts()">
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+      <p style="font-size:0.72rem;color:var(--ink3);margin-top:0.8rem;font-weight:600;">
+        Belum punya draft? <a href="/" style="color:var(--pink);font-weight:700;">Buat di sini</a>
+      </p>
+    </div>
+
+    <!-- Draft List (hidden initially) -->
+    <div id="draftSection" style="display:none">
+      <div class="drafts-header fu fu1">
+        <h3>Draft Kamu 📝</h3>
+        <div>
+          <span class="pin-badge" id="activePinBadge"></span>
+          <button class="btn btn-ghost" onclick="logout()" style="margin-left:6px;padding:5px 12px;font-size:0.75rem;">
+            <i class="fa-solid fa-right-from-bracket"></i> Ganti PIN
+          </button>
+        </div>
+      </div>
+      <div id="draftList">
+        <div class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Memuat draft…</div>
+      </div>
+      <div style="margin-top:1rem">
+        <a href="/" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Buat Draft Baru</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="confirm-backdrop" id="confirmBackdrop">
+  <div class="confirm-box">
+    <h3>Hapus Draft? 🗑️</h3>
+    <p>Draft ini akan dihapus permanen dan tidak bisa dikembalikan.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm()" style="padding:8px 16px;font-size:0.82rem;">Batal</button>
+      <button class="btn-sm btn-sm-red" id="confirmDeleteBtn" style="padding:8px 16px;font-size:0.82rem;border-radius:10px;">
+        <i class="fa-solid fa-trash"></i> Hapus
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let activePin = localStorage.getItem('mla-pin') || '';
+  let pendingDeleteId = null;
+
+  // auto load if pin saved
+  if (activePin) {
+    document.getElementById('pinInput').value = activePin;
+    loadDrafts();
+  }
+
+  document.getElementById('pinInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loadDrafts();
+  });
+
+  async function loadDrafts() {
+    const pin = document.getElementById('pinInput').value.trim().toUpperCase();
+    if (pin.length < 3) { showToast('Masukkan PIN dulu!', 'error'); return; }
+    activePin = pin;
+    localStorage.setItem('mla-pin', pin);
+
+    document.getElementById('pinSection').style.display = 'none';
+    document.getElementById('draftSection').style.display = 'block';
+    document.getElementById('activePinBadge').textContent = 'PIN: ' + pin;
+    document.getElementById('draftList').innerHTML = '<div class="loading-row"><i class="fa-solid fa-spinner fa-spin"></i> Memuat draft…</div>';
+
+    try {
+      const res = await fetch('/api/draft/list?pin=' + pin);
+      const data = await res.json();
+      renderDrafts(Array.isArray(data) ? data : []);
+    } catch {
+      document.getElementById('draftList').innerHTML = '<div class="loading-row">Gagal memuat 😢</div>';
+    }
+  }
+
+  function ago(d) {
+    const m = Math.floor((Date.now()-new Date(d))/60000);
+    if (m<1) return 'baru saja';
+    if (m<60) return m+' menit lalu';
+    const h=Math.floor(m/60);
+    if (h<24) return h+' jam lalu';
+    return Math.floor(h/24)+' hari lalu';
+  }
+
+  function renderDrafts(drafts) {
+    const el = document.getElementById('draftList');
+    if (!drafts.length) {
+      el.innerHTML = '<div class="empty-drafts"><span class="emoji">📭</span><p>Belum ada draft. Yuk buat list!</p></div>';
+      return;
+    }
+    el.innerHTML = drafts.map(d => {
+      const list = d.anime_list || [];
+      const cells = Array.from({length:9}, (_,i) =>
+        list[i] ? '<img src="'+list[i].image+'" alt="" loading="lazy">' : '<div class="empty"></div>'
+      ).join('');
+      return '<div class="draft-card">' +
+        '<div class="draft-card-top">' +
+          '<div class="draft-mosaic">'+cells+'</div>' +
+          '<div class="draft-info">' +
+            '<div class="draft-title">'+(d.title||'Draft')+'</div>' +
+            '<div class="draft-meta">'+d.username+' · '+ago(d.updated_at||d.created_at)+'</div>' +
+            '<span class="draft-count"><i class="fa-solid fa-film"></i> '+list.length+' anime</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="draft-actions">' +
+          '<a href="/?draft='+d.id+'&pin='+activePin+'" class="btn-sm btn-sm-blue"><i class="fa-solid fa-pen"></i> Lanjut Edit</a>' +
+          '<button class="btn-sm btn-sm-green" onclick="publishDraft(\''+d.id+'\')"><i class="fa-solid fa-share-nodes"></i> Publish</button>' +
+          '<button class="btn-sm btn-sm-red" onclick="confirmDelete(\''+d.id+'\')"><i class="fa-solid fa-trash"></i> Hapus</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function publishDraft(id) {
+    if (!confirm('Publish draft ini ke halaman publik?')) return;
+    try {
+      const res = await fetch('/api/draft/publish/'+id, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({pin: activePin})
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast('Berhasil dipublish! 🎉', 'success');
+        setTimeout(() => window.location.href = '/list/'+data.id, 1000);
+      } else {
+        showToast(data.error||'Gagal publish', 'error');
+      }
+    } catch { showToast('Koneksi bermasalah', 'error'); }
+  }
+
+  function confirmDelete(id) {
+    pendingDeleteId = id;
+    document.getElementById('confirmBackdrop').classList.add('open');
+  }
+  function closeConfirm() {
+    pendingDeleteId = null;
+    document.getElementById('confirmBackdrop').classList.remove('open');
+  }
+
+  document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+    closeConfirm();
+    try {
+      const res = await fetch('/api/draft/delete/'+pendingDeleteId+'?pin='+activePin, {method:'DELETE'});
+      const data = await res.json();
+      if (data.success) { showToast('Draft dihapus!', 'success'); loadDrafts(); }
+      else showToast(data.error||'Gagal hapus', 'error');
+    } catch { showToast('Koneksi bermasalah', 'error'); }
+  });
+
+  function logout() {
+    localStorage.removeItem('mla-pin');
+    activePin = '';
+    document.getElementById('pinSection').style.display = 'block';
+    document.getElementById('draftSection').style.display = 'none';
+    document.getElementById('pinInput').value = '';
+  }
+</script>
+{% endblock %}
